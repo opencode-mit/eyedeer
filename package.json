@@ -1,0 +1,41 @@
+{
+  "name": "eyedeer",
+  "version": "1.0.0",
+  "description": "secure and simple oauth2 service",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "compile": "npm run build",
+    "start": "npm run compile && node --require source-map-support/register dist/server/Server.js",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opencode-mit/eyedeer.git"
+  },
+  "keywords": [
+    "oauth2"
+  ],
+  "author": "open-code",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opencode-mit/eyedeer/issues"
+  },
+  "homepage": "https://github.com/opencode-mit/eyedeer#readme",
+  "devDependencies": {
+    "@types/assert": "^1.5.6",
+    "@types/express": "^4.17.15",
+    "@types/node": "^18.11.18",
+    "browserify": "^17.0.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-async-handler": "^1.2.0",
+    "http-status-codes": "^2.2.0",
+    "source-map-support": "^0.5.21"
+  }
+}
