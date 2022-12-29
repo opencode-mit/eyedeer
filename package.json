@@ -7,8 +7,7 @@
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
     "compile": "npm run build",
-    "start": "npm run compile && node --require source-map-support/register dist/server/Server.js",
-    "test": "test"
+    "start": "npm run compile && node --require source-map-support/register dist/server/Server.js"
   },
   "repository": {
     "type": "git",
@@ -25,17 +24,38 @@
   "homepage": "https://github.com/opencode-mit/eyedeer#readme",
   "devDependencies": {
     "@types/assert": "^1.5.6",
+    "@types/connect-ensure-login": "^0.1.7",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/errorhandler": "^1.5.0",
     "@types/express": "^4.17.15",
+    "@types/express-session": "^1.17.5",
     "@types/node": "^18.11.18",
+    "@types/oauth2orize": "^1.8.10",
+    "@types/passport": "^1.0.11",
+    "@types/passport-http": "^0.3.9",
+    "@types/passport-http-bearer": "^1.0.37",
+    "@types/passport-local": "^1.0.34",
+    "@types/passport-oauth2-client-password": "^0.1.2",
     "browserify": "^17.0.0",
     "rimraf": "^3.0.2",
     "typescript": "^4.9.4"
   },
   "dependencies": {
+    "connect-ensure-login": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
+    "errorhandler": "^1.5.1",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
+    "express-session": "^1.17.3",
     "http-status-codes": "^2.2.0",
+    "oauth2orize": "^1.11.1",
+    "passport": "^0.6.0",
+    "passport-http": "^0.3.0",
+    "passport-http-bearer": "^1.0.1",
+    "passport-local": "^1.0.0",
+    "passport-oauth2-client-password": "^0.1.2",
     "source-map-support": "^0.5.21"
   }
 }

@@ -1,0 +1,10 @@
+const codes = new Map<string, { clientId: string, redirectUri: string, userId: string }>();
+
+export const find = (key: string): { clientId: string, redirectUri: string, userId: string } | undefined => {
+    if (codes.get(key)) return codes.get(key);
+    return undefined;
+};
+
+export const save = (code: string, clientId: string, redirectUri: string, userId: string) => {
+    codes.set(code, { clientId, redirectUri, userId });
+};
