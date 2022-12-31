@@ -94,6 +94,11 @@ export class WebServer {
             assert(client);
             assert(client.redirect_uri == redirect_uri);
             const user = req.session.user as User;
+            if (user.apps.find((app) => app === client.clientId)) {
+                const code = utils.getUid(16);
+                authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
+                return res.redirect(redirect_uri + `?code=${code}&state=${state}`);        
+            }
             const transaction_id = utils.getUid(64);
             transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
             res.render('decide', { transactionId: transaction_id, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(scope as string) });
@@ -129,6 +134,11 @@ export class WebServer {
                 assert(client);
                 assert(client.redirect_uri == redirect_uri);
                 const user = req.session.user as User;
+                if (user.apps.find((app) => app === client.clientId)) {
+                    const code = utils.getUid(16);
+                    authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
+                    return res.redirect(redirect_uri + `?code=${code}&state=${state}`);        
+                }
                 const transaction_id = utils.getUid(64);
                 transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
                 res.render('decide', { transactionId: transaction_id, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(scope as string) });
@@ -140,6 +150,7 @@ export class WebServer {
             const transaction = transactions.get(transaction_id);
             assert(transaction);
             const { redirect_uri, state, client, user, scope } = transaction;
+            user.apps.push(client.clientId);
             const code = utils.getUid(16);
             authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope);
             res.redirect(redirect_uri + `?code=${code}&state=${state}`);

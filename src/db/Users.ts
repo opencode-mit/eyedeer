@@ -1,8 +1,8 @@
 import { User } from "../Types";
 
 const users: Array<User> = [
-  { id: '1', username: 'bob', password: 'secret', name: 'Bob Smith' },
-  { id: '2', username: 'joe', password: 'password', name: 'Joe Davis' },
+  { id: '1', username: 'bob', password: 'secret', name: 'Bob Smith', apps: ['abc123'] },
+  { id: '2', username: 'joe', password: 'password', name: 'Joe Davis', apps: [] },
 ];
 
 export const findById = (id: string): User | undefined => {
