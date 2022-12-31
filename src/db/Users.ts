@@ -51,3 +51,14 @@ export const checkScopes = (id: string, clientId: string, scopes: Set<string>): 
     }
     return false;
 }
+
+export const getCurrentApprovedScopes = (id: string, clientId: string): Set<string> => {
+    for (const user of users) {
+        if (user.id === id) {
+            const existingScopes = user.apps.get(clientId);
+            if (existingScopes === undefined) return new Set();
+            return new Set([...existingScopes]);
+        }
+    }
+    return new Set();
+}
