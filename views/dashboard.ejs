@@ -1,0 +1,60 @@
+<%- include('header') %>
+<%- include('topbar') %> 
+
+<style>
+body {
+    background-color: #eee;
+}
+
+.org-logo {
+    width: 5em;
+    height: 5em;
+    background: white;
+    border: 1px solid lightgrey;
+    border-radius: 20%;
+    cursor: pointer;
+}
+
+main {
+    margin: 1em;
+}
+
+#org-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5em
+}
+
+.see-more {
+    display: flex;
+    width: 5em;
+    height: 5em;
+    background: white;
+    border: 1px solid #d3d3d3;
+    border-radius: 20%;
+    cursor: pointer;
+}
+
+.section-link {
+    color: black;
+}
+
+.more-logo {
+    margin: 1em;
+}
+</style>
+
+<main>
+    <section class="app-section">
+        <a class="section-link" href="/apps"><h2>Apps</h2></a>
+        <div id="org-container">
+            <% clients.forEach((approvedClient, i) => { %>
+                <% if (i < 4) { %> 
+                    <a href="/dashboard?client=<%= approvedClient.clientId %>"><img class="org-logo" alt="org logo" src="<%= approvedClient.image %>"></a>
+                <% } else { %> 
+                    <a class="see-more" href="/apps"><img class="more-logo" alt="see more apps" src="/images/more.svg"></a>
+                <% } %> 
+            <% }); %> 
+        </div>
+    </section>
+</main>

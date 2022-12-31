@@ -72,7 +72,11 @@ export class WebServer {
         }
 
         this.app.get("/dashboard", isAuth, (req, res) => {
-            res.render('dashboard', { user: req.user });
+            const user = req.session.user;
+            assert(user);
+            const approvedApps = [...users.findById(user.id)!.apps.keys()];
+            const approvedClients = approvedApps.map((clientId) => clients.findByClientId(clientId));
+            res.render('dashboard', { user: req.session.user, clients: approvedClients });
         });
 
         this.app.get("/logto", (req, res) => {

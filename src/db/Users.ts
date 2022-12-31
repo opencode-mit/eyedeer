@@ -1,7 +1,7 @@
 import { User } from "../Types";
 
 const users: Array<User> = [
-  { id: '1', username: 'bob', password: 'secret', name: 'Bob Smith', apps: new Map([['abc123', new Set(['email', 'name'])]]) },
+  { id: '1', username: 'bob', password: 'secret', name: 'Bob Smith', apps: new Map([['abc123', new Set(['email', 'name'])], ['xyz123', new Set(['email'])]]) },
   { id: '2', username: 'joe', password: 'password', name: 'Joe Davis', apps: new Map([['abc123', new Set(['email'])]]) },
 ];
 
