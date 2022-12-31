@@ -1,2 +1,2 @@
 export type Client = { id: string, name: string, clientId: string, clientSecret: string, redirect_uri: string, image: string };
-export type User = { id: string, username: string, password: string, name: string, apps: string[] };
+export type User = { id: string, username: string, password: string, name: string, apps: Map<string, Set<string>> };

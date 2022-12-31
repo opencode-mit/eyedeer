@@ -70,7 +70,7 @@ export class WebServer {
             if (req.session.user) return next();
             res.redirect('/login')
         }
-        
+
         this.app.get("/dashboard", isAuth, (req, res) => {
             res.render('dashboard', { user: req.user });
         });
@@ -94,10 +94,10 @@ export class WebServer {
             assert(client);
             assert(client.redirect_uri == redirect_uri);
             const user = req.session.user as User;
-            if (user.apps.find((app) => app === client.clientId)) {
+            if (users.checkScopes(user.id, client.clientId, new Set((scope as string).split(" ")))) {
                 const code = utils.getUid(16);
                 authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
-                return res.redirect(redirect_uri + `?code=${code}&state=${state}`);        
+                return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
             }
             const transaction_id = utils.getUid(64);
             transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
@@ -134,10 +134,10 @@ export class WebServer {
                 assert(client);
                 assert(client.redirect_uri == redirect_uri);
                 const user = req.session.user as User;
-                if (user.apps.find((app) => app === client.clientId)) {
+                if (users.checkScopes(user.id, client.clientId, new Set((scope as string).split(" ")))) {
                     const code = utils.getUid(16);
                     authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
-                    return res.redirect(redirect_uri + `?code=${code}&state=${state}`);        
+                    return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
                 }
                 const transaction_id = utils.getUid(64);
                 transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
@@ -150,7 +150,7 @@ export class WebServer {
             const transaction = transactions.get(transaction_id);
             assert(transaction);
             const { redirect_uri, state, client, user, scope } = transaction;
-            user.apps.push(client.clientId);
+            users.addAppWithScopes(user.id, client.clientId, new Set(scope.split(" ")));
             const code = utils.getUid(16);
             authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope);
             res.redirect(redirect_uri + `?code=${code}&state=${state}`);
