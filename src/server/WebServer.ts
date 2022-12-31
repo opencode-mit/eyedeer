@@ -37,7 +37,7 @@ export class WebServer {
         this.app.use(session({
             secret: 'barish',
             resave: false,
-            saveUninitialized: false,
+            saveUninitialized: true,
             cookie: {
                 maxAge: 60 * 60 * 1000
             }
