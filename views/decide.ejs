@@ -126,14 +126,14 @@ input[type=submit].secondary {
 <body id="form-container">
   <div class="logo-container">
     <img class="org-logo" alt="organization logo" src="<%= clientAuth.image %>">
-    <img class="link" alt="link" src="images/link.svg">
-    <img class="org-logo" alt="eyedeerlogo" src="images/eyedeer.svg">
+    <img class="link" alt="link" src="/images/link.svg">
+    <img class="org-logo" alt="eyedeerlogo" src="/images/eyedeer.svg">
   </div>
   <form action="/dialog/authorize" method="post">
     <b><%= clientAuth.name %></b> is requesting read access to your <b><%= user.username %></b> account.</p>
     <% if (scopes['personal']) { %>
       <div class="info-section">
-        <img class="info-logo" alt="person" src="images/person.svg">
+        <img class="info-logo" alt="person" src="/images/person.svg">
         <div class="info-text">
           <label class="info-header">Personal user data</label>
           <label class="info-content"><%= scopes['personal'].join(", ") %></label>
