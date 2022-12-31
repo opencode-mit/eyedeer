@@ -1,5 +1,5 @@
 import assert from 'assert';
-import express, { Application, json } from 'express';
+import express, { Application, json, NextFunction } from 'express';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import errorHander from 'errorhandler';
@@ -16,12 +16,20 @@ import asyncHandler from 'express-async-handler';
 import dotenv from 'dotenv';
 import { Client, User } from '../Types';
 
+declare module 'express-session' {
+    interface SessionData {
+        user: User;
+    }
+}
+
+
 export class WebServer {
     private readonly app: Application;
     public server: http.Server | undefined;
 
     public constructor(private readonly port: number) {
         this.app = express();
+        this.app.set('view engine', 'ejs');
         // this.app.use(cookieParser());
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
@@ -40,81 +48,55 @@ export class WebServer {
             next();
         });
 
+        this.app.use(express.static('assets'));
+
         this.app.get("/", (req, res) => {
             res.send("<h1>OAuth 2.0 Server!</h1>");
         });
 
         this.app.get("/login", (req, res) => {
-            res.send(`<form action="/login" method="post">
-                        <div>
-                        <label>Username:</label>
-                        <input type="text" name="username" /><br/>
-                        </div>
-                        <div>
-                        <label>Password:</label>
-                        <input type="password" name="password" />
-                        </div>
-                        <div>
-                        <input type="submit" value="Submit" />
-                        </div>
-                    </form>
-                    <p><small>Hint - bob:secret</small></p>
-                    <p><small>Hint - joe:password</small></p>`);
+            res.render('login', { direction: `/login` });
         });
 
         this.app.post("/login", (req, res, next) => {
             const { username, password } = req.body;
             const user = users.findByUsername(username);
             if (!user || user.password !== password) return res.redirect("/login");
-            req.user = user;
-            res.redirect("/");
+            req.session.user = user;
+            res.redirect("/dashboard");
+        });
+
+        const isAuth = (req: any, res: any, next: NextFunction) => {
+            if (req.session.user) return next();
+            res.redirect('/login')
+        }
+        
+        this.app.get("/dashboard", isAuth, (req, res) => {
+            res.render('dashboard', { user: req.user });
         });
 
         this.app.get("/logto", (req, res) => {
-            const { redirect_uri, state, client_id } = req.query;
-            assert(redirect_uri && state && client_id);
-            res.send(`<form action="/logto?redirect_uri=${redirect_uri}&state=${state}&client_id=${client_id}" method="post">
-                        <div>
-                        <label>Username:</label>
-                        <input type="text" name="username" /><br/>
-                        </div>
-                        <div>
-                        <label>Password:</label>
-                        <input type="password" name="password" />
-                        </div>
-                        <div>
-                        <input type="submit" value="Submit" />
-                        </div>
-                    </form>
-                    <p><small>Hint - bob:secret</small></p>
-                    <p><small>Hint - joe:password</small></p>`);
+            const { redirect_uri, state, client_id, scope } = req.query;
+            assert(redirect_uri && state && client_id && scope);
+            res.render('login', { direction: `/logto?redirect_uri=${redirect_uri}&state=${state}&client_id=${client_id}&scope=${scope}` });
         });
 
         this.app.post("/logto", (req, res, next) => {
             const { username, password } = req.body;
             const user = users.findByUsername(username);
             if (!user || user.password !== password) return res.redirect("/logto");
-            req.user = user;
+            req.session.user = user;
             next();
         }, (req, res, next) => {
-            const { redirect_uri, state, client_id } = req.query;
-            assert(redirect_uri && state && client_id);
+            const { redirect_uri, state, client_id, scope } = req.query;
+            assert(redirect_uri && state && client_id && scope);
             const client = clients.findByClientId(client_id as string);
             assert(client);
-            const user = req.user as User;
+            assert(client.redirect_uri == redirect_uri);
+            const user = req.session.user as User;
             const transaction_id = utils.getUid(64);
-            transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user });
-            res.send(`<p>Hi ${user.name}!</p>
-                      <p><b>${client.name}</b> is requesting access to your account.</p>
-                      <p>Do you approve?</p>
-                      
-                      <form action="/dialog/authorize" method="post">
-                      <input name="transaction_id" type="hidden" value="${transaction_id}" />
-                      <div>
-                          <input type="submit" value="Allow" id="allow" />
-                          <input type="submit" value="Deny" name="cancel" id="deny" />
-                      </div>
-                      </form>`)
+            transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
+            res.render('decide', { transactionId: transaction_id, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(scope as string) });
         });
 
         this.app.get("/logout", (req, res, next) => {
@@ -128,36 +110,28 @@ export class WebServer {
             res.send(JSON.stringify(req.user));
         });
 
-        const transactions = new Map<string, { redirect_uri: string, state: string, client: Client, user: User }>();
+        const transactions = new Map<string, { redirect_uri: string, state: string, client: Client, user: User, scope: string }>();
 
         this.app.get("/dialog/authorize",
             (req, res, next) => {
-                const { redirect_uri, state, client_id } = req.query;
-                assert(redirect_uri && state && client_id);
-                if (!req.user) {
-                    return res.redirect(`/logto?redirect_uri=${redirect_uri}&state=${state}&client_id=${client_id}`);
+                console.log(req.query);
+                const { redirect_uri, state, client_id, scope } = req.query;
+                assert(redirect_uri && state && client_id && scope);
+                if (!req.session.user) {
+                    return res.redirect(`/logto?redirect_uri=${redirect_uri}&state=${state}&client_id=${client_id}&scope=${scope}`);
                 }
                 next();
             },
             (req, res, next) => {
-                const { redirect_uri, state, client_id } = req.query;
-                assert(redirect_uri && state && client_id);
+                const { redirect_uri, state, client_id, scope } = req.query;
+                assert(redirect_uri && state && client_id && scope);
                 const client = clients.findByClientId(client_id as string);
                 assert(client);
+                assert(client.redirect_uri == redirect_uri);
                 const user = req.user as User;
                 const transaction_id = utils.getUid(64);
-                transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user });
-                res.send(`<p>Hi ${user.name}!</p>
-                          <p><b>${client.name}</b> is requesting access to your account.</p>
-                          <p>Do you approve?</p>
-                          
-                          <form action="/dialog/authorize" method="post">
-                          <input name="transaction_id" type="hidden" value="${transaction_id}" />
-                          <div>
-                              <input type="submit" value="Allow" id="allow" />
-                              <input type="submit" value="Deny" name="cancel" id="deny" />
-                          </div>
-                          </form>`)
+                transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
+                res.render('decide', { transactionId: transaction_id, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(scope as string) });
             }
         );
 
@@ -165,9 +139,9 @@ export class WebServer {
             const { transaction_id } = req.body;
             const transaction = transactions.get(transaction_id);
             assert(transaction);
-            const { redirect_uri, state, client, user } = transaction;
+            const { redirect_uri, state, client, user, scope } = transaction;
             const code = utils.getUid(16);
-            authorizationCodes.save(code, client.clientId, redirect_uri, user.id);
+            authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope);
             res.redirect(redirect_uri + `?code=${code}&state=${state}`);
         });
 
@@ -177,15 +151,15 @@ export class WebServer {
 
             const authData = authorizationCodes.find(code);
             assert(authData);
-            const { clientId, redirectUri, userId } = authData;
+            const { clientId, redirectUri, userId, scope } = authData;
             assert(client_id === clientId);
             assert(redirect_uri === redirectUri);
             const user = users.findById(userId);
             assert(user);
             const accessToken = utils.getUid(256);
             const refreshToken = utils.getUid(256);
-            accessTokens.save(accessToken, userId, client_id);
-            refreshTokens.save(refreshToken, userId, client_id);
+            accessTokens.save(accessToken, userId, client_id, scope);
+            refreshTokens.save(refreshToken, userId, client_id, scope);
             res.type('json').send({
                 "access_token": accessToken,
                 "token_type": "bearer",

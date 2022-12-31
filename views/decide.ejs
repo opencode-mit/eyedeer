@@ -1,0 +1,152 @@
+<%- include('header')%>
+
+<style>
+body {
+  margin: auto;
+  max-width: 60ch;
+  background-color: #eee;
+}
+
+#form-container {
+  padding: 65px 0.2em;
+}
+
+form {
+  background: white;
+  padding: 1em;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+}
+
+input[type=submit] {
+  height: 2.5rem;
+  font-size: 1em;
+  appearance: none;
+  border: none;
+  border-radius: 5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.split {
+  display: flex;
+  justify-content: space-around;
+  gap: 1em;
+}
+
+.split .primary {
+  flex: 1;
+}
+
+.split .secondary {
+  flex: 1;
+}
+
+input[type=submit].primary {
+  background-color: #26a269;
+  border: 1px solid #1c784d;
+  color: white;
+}
+
+input[type=submit].secondary {
+  background-color: #eeeeee;
+  border: 1px solid #d4d4d4;
+  color: black;
+}
+
+.org-logo {
+  width: 10ch;
+  height: 10ch;
+  border: 1px solid lightgray;
+  border-radius: 20%;
+  background: white;
+}
+
+.link {
+  width: 2em;
+  height: 2em;
+  padding: 0.4em;
+  border-radius: 100%;
+  background: #1c784d;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  max-width: 30ch;
+  margin: 1em auto;
+}
+
+.logo-container::before {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  top: 50%;
+  left: 0;
+  content: "";
+  border-bottom: 2px dashed #1c784d;
+}
+
+.info-section {
+  display: flex;
+  margin: 1em 0;
+  gap: 0.6em;
+  align-items: center;
+}
+
+.info-logo {
+  width: 2.5em;
+  height: 2.5em;
+}
+
+.info-header {
+  display: block;
+  font-weight: 600;
+}
+
+.info-content {
+  display: block;
+}
+
+.redirect-section {
+  padding-top: 0.8em;
+  margin-top: 1em;
+  border-top: 1px solid lightgray;
+  text-align: center;
+}
+
+.redirect {
+  font-weight: 600;
+}
+
+</style>
+
+<body id="form-container">
+  <div class="logo-container">
+    <img class="org-logo" alt="organization logo" src="<%= clientAuth.image %>">
+    <img class="link" alt="link" src="images/link.svg">
+    <img class="org-logo" alt="eyedeerlogo" src="images/eyedeer.svg">
+  </div>
+  <form action="/dialog/authorize" method="post">
+    <b><%= clientAuth.name %></b> is requesting read access to your <b><%= user.username %></b> account.</p>
+    <% if (scopes['personal']) { %>
+      <div class="info-section">
+        <img class="info-logo" alt="person" src="images/person.svg">
+        <div class="info-text">
+          <label class="info-header">Personal user data</label>
+          <label class="info-content"><%= scopes['personal'].join(", ") %></label>
+        </div>
+      </div>  
+    <%}%>
+    <input name="transaction_id" type="hidden" value="<%= transactionId %>" />
+    <div class="split">
+      <input class="secondary" type="submit" value="Deny" name="cancel" id="deny" />
+      <input class="primary" type="submit" value="Allow" id="allow" />
+    </div>
+    <div class="redirect-section">
+      You will be redirected to <label class="redirect"><%= redirect_uri %></label>
+    </div>
+  </form>
+</body>
