@@ -101,9 +101,10 @@ export class WebServer {
             }
             const transaction_id = utils.getUid(64);
             transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
-            const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), users.getCurrentApprovedScopes(user.id, client.clientId));
-            res.render('decide', { transactionId: transaction_id, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
-        });
+            const existingScopes = users.getCurrentApprovedScopes(user.id, client.clientId);
+            const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), existingScopes);
+            res.render('decide', { transactionId: transaction_id, approvedBefore: existingScopes.size > 0, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
+    });
 
         this.app.get("/logout", (req, res, next) => {
             req.logout(function (err) {
@@ -141,8 +142,9 @@ export class WebServer {
                     return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
                 }
                 const transaction_id = utils.getUid(64);
-                const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), users.getCurrentApprovedScopes(user.id, client.clientId));
-                res.render('decide', { transactionId: transaction_id, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
+                const existingScopes = users.getCurrentApprovedScopes(user.id, client.clientId);
+                const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), existingScopes);
+                res.render('decide', { transactionId: transaction_id, approvedBefore: existingScopes.size > 0, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
                 }
         );
 

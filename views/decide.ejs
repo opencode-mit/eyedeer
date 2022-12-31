@@ -130,7 +130,11 @@ input[type=submit].secondary {
     <img class="org-logo" alt="eyedeerlogo" src="/images/eyedeer.svg">
   </div>
   <form action="/dialog/authorize" method="post">
-    <b><%= clientAuth.name %></b> is requesting read access to your <b><%= user.username %></b> account.</p>
+    <% if (approvedBefore) { %> 
+      <b><%= clientAuth.name %></b> is requesting additional read access to your <b><%= user.username %></b> account.</p>
+    <% } else { %> 
+      <b><%= clientAuth.name %></b> is requesting read access to your <b><%= user.username %></b> account.</p>
+    <% } %> 
     <% if (scopes['personal']) { %>
       <div class="info-section">
         <img class="info-logo" alt="person" src="/images/person.svg">
