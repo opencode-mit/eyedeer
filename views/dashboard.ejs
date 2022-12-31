@@ -42,6 +42,35 @@ main {
 .more-logo {
     margin: 1em;
 }
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.info:first-child {
+    border-radius: 5px 5px 0 0;
+}
+
+.info:last-child {
+    border-radius: 0 0 5px 5px;
+}
+
+.info {
+    padding: 0.6em;
+    border: 1px solid lightgray;
+    background: white;
+}
+
+.info:not(:last-child) {
+    border-bottom: none;
+}
+
+.info-name {
+    text-transform: capitalize;
+    font-weight: 600;
+}
+
 </style>
 
 <main>
@@ -54,6 +83,21 @@ main {
                 <% } else { %> 
                     <a class="see-more" href="/apps"><img class="more-logo" alt="see more apps" src="/images/more.svg"></a>
                 <% } %> 
+            <% }); %> 
+        </div>
+    </section>
+    <section class="app-section">
+        <a class="section-link" href="/info"><h2>Info</h2></a>
+        <div id="info-container">
+            <% Object.getOwnPropertyNames(user.profile).forEach((info) => { %>
+                <div class="info">
+                    <div class="info-name">
+                        <%=info%>
+                    </div>
+                    <div class="info-value">
+                        <%=user.profile[info]%>
+                    </div>
+                </div>
             <% }); %> 
         </div>
     </section>

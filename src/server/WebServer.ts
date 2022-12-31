@@ -76,7 +76,7 @@ export class WebServer {
             assert(user);
             const approvedApps = [...users.findById(user.id)!.apps.keys()];
             const approvedClients = approvedApps.map((clientId) => clients.findByClientId(clientId));
-            res.render('dashboard', { user: req.session.user, clients: approvedClients });
+            res.render('dashboard', { user: users.findById(req.session.id), clients: approvedClients });
         });
 
         this.app.get("/logto", (req, res) => {
@@ -196,7 +196,7 @@ export class WebServer {
             const user = users.findById(userId);
             assert(user);
             res.type('json').send({
-                'name': user.name
+                'profile': user.profile
             });
         });
     }
