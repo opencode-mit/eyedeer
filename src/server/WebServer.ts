@@ -128,7 +128,7 @@ export class WebServer {
                 const client = clients.findByClientId(client_id as string);
                 assert(client);
                 assert(client.redirect_uri == redirect_uri);
-                const user = req.user as User;
+                const user = req.session.user as User;
                 const transaction_id = utils.getUid(64);
                 transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
                 res.render('decide', { transactionId: transaction_id, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(scope as string) });
