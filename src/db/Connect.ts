@@ -1,5 +1,6 @@
 // import mysql, { Connection } from 'mysql2/promise';
 import * as edgedb from "edgedb";
+import e from "../../dbschema/edgeql-js";
 import { CLIENT_ID_LENGTH, CLIENT_NAME_MAX, CLIENT_SECRET_LENGTH, HASHED_PASSWORD_MAX, REDIRECT_URI_MAX, USERNAME_MAX } from '../Common';
 
 export let DBClient = edgedb.createClient();
