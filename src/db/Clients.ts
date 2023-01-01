@@ -1,4 +1,4 @@
-import { Client } from "../Types";
+import { Client } from "../Common";
 
 const clients: Array<Client> = [
     { id: '1', name: 'Samplr', clientId: 'abc123', clientSecret: 'ssh-secret', redirect_uri: 'http://localhost:8888/callback', image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAAh1BMVEUAAAAxd71AfcQxd70yhsUyeL4xeL4zfsMxeL0yeL4xeL4wesExfcQxeb4xeb4yeb8xeL4xecAxeL4xeL0xeL4xeL4xeb8xesAxeMAwe8UxeL4yeb8xer8yeb8yeb4ye8Eyeb8yeb8xesAxeMIxeL4yeb0xd7wzfcYze8M0f8kyecAxeL41gs16QFhpAAAAJnRSTlMA+wP4CNhaEfLdwh8L76ed6zvl1My7ajIpGeCVhGRRIrV3RTZ9ZT8pRf8AAAE9SURBVCjPTZHZmoMgDEaBMO5bW221+zJDCPT9n28CeOG50pyE/HwIRgmR37pDAefpd46/TKof90jWe4cElzyaWG+e5CAipaf9LhkldPUF4GYia4wBhNM60xEgtVV36Q/WB3POY/1uHY7Z0oTpG3hpgC5RVN99JsR1FiqkQGmkL2qu775jLeq2E1opLZrSsqEji/6gxDwg96wLw1l9EItQfNrfPQvcpzCBFQtuzQiMxYTjxNKd00WmsDFdEGTADLG+DE4auwUhipPk6fJnQzlGsfPGF7NqdKLRTaOj+PCAffPHhigehYMQUKuAVqGWqFBK7LVYqV/5OnIjXo8/r91jqU9ZX7QsEiMCryFXtIVBwjKIFBgsG2mcc16CTyIlbokFE16X2nyTrHOEzjuLZMvjNrP4XKdyGA7P6zvF+wdaYR+WPYBj2gAAAABJRU5ErkJggg==' },

@@ -1,4 +1,4 @@
-import { User } from "../Types";
+import { User } from "../Common";
 
 const users: Array<User> = [
     { id: '1', username: 'bob', password: 'secret', profile: { name: 'Bob Smith', email: 'bobsmit@gmail.com' }, apps: new Map([['abc123', new Set(['email', 'name'])], ['xyz123', new Set(['email'])]]) },

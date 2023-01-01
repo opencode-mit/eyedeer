@@ -1,7 +1,11 @@
 import assert from "assert";
+import dotenv from 'dotenv';
+import { connect } from "../db/Connect";
 import { WebServer } from './WebServer';
 
 async function main(): Promise<void> {
+    dotenv.config();
+    await connect();
     const server: WebServer = new WebServer(8080);
     await server.start();
     assert(server.server !== undefined);

@@ -4,6 +4,7 @@ import http from 'http';
 import cookieParser from 'cookie-parser';
 import errorHander from 'errorhandler';
 import session from 'express-session'
+const expressMySQLStore = require('express-mysql-session')(session);
 import login from 'connect-ensure-login';
 import * as clients from '../db/Clients';
 import * as users from '../db/Users';
@@ -13,8 +14,9 @@ import * as authorizationCodes from '../db/AuthorizationCodes';
 import * as utils from '../util/Utils';
 import HttpStatus from 'http-status-codes';
 import asyncHandler from 'express-async-handler';
-import dotenv from 'dotenv';
-import { Client, User } from '../Types';
+import { Client, CODE_LENGTH, TOKEN_LENGTH, User } from '../Common';
+import { con } from '../db/Connect';
+import passport from 'passport';
 
 declare module 'express-session' {
     interface SessionData {
@@ -34,14 +36,24 @@ export class WebServer {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(errorHander());
+        const sessionStore = new expressMySQLStore({
+            host: process.env['MYSQL_HOST'],
+            port: process.env['MYSQL_PORT'],
+            user: process.env['MYSQL_USER'],
+            password: process.env['MYSQL_PASSWORD'],
+            database: 'cookies'
+        });
         this.app.use(session({
             secret: 'barish',
             resave: false,
             saveUninitialized: true,
+            store: sessionStore,
             cookie: {
                 maxAge: 60 * 60 * 1000
             }
         }));
+        this.app.use(passport.initialize());
+        this.app.use(passport.session());
 
         this.app.use((req, res, next) => {
             console.log(req.url);
@@ -74,9 +86,10 @@ export class WebServer {
         this.app.get("/dashboard", isAuth, (req, res) => {
             const user = req.session.user;
             assert(user);
+            console.log(user);
             const approvedApps = [...users.findById(user.id)!.apps.keys()];
             const approvedClients = approvedApps.map((clientId) => clients.findByClientId(clientId));
-            res.render('dashboard', { user: users.findById(req.session.id), clients: approvedClients });
+            res.render('dashboard', { user: users.findById(user.id), clients: approvedClients });
         });
 
         this.app.get("/logto", (req, res) => {
@@ -99,7 +112,7 @@ export class WebServer {
             assert(client.redirect_uri == redirect_uri);
             const user = req.session.user as User;
             if (users.checkScopes(user.id, client.clientId, new Set((scope as string).split(" ")))) {
-                const code = utils.getUid(16);
+                const code = utils.getUid(CODE_LENGTH);
                 authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
                 return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
             }
@@ -108,7 +121,7 @@ export class WebServer {
             const existingScopes = users.getCurrentApprovedScopes(user.id, client.clientId);
             const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), existingScopes);
             res.render('decide', { transactionId: transaction_id, approvedBefore: existingScopes.size > 0, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
-    });
+        });
 
         this.app.get("/logout", (req, res, next) => {
             req.logout(function (err) {
@@ -141,7 +154,7 @@ export class WebServer {
                 assert(client.redirect_uri == redirect_uri);
                 const user = req.session.user as User;
                 if (users.checkScopes(user.id, client.clientId, new Set((scope as string).split(" ")))) {
-                    const code = utils.getUid(16);
+                    const code = utils.getUid(CODE_LENGTH);
                     authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
                     return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
                 }
@@ -149,7 +162,7 @@ export class WebServer {
                 const existingScopes = users.getCurrentApprovedScopes(user.id, client.clientId);
                 const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), existingScopes);
                 res.render('decide', { transactionId: transaction_id, approvedBefore: existingScopes.size > 0, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
-                }
+            }
         );
 
         this.app.post("/dialog/authorize", (req, res) => {
@@ -158,7 +171,7 @@ export class WebServer {
             assert(transaction);
             const { redirect_uri, state, client, user, scope } = transaction;
             users.addAppWithScopes(user.id, client.clientId, new Set(scope.split(" ")));
-            const code = utils.getUid(16);
+            const code = utils.getUid(CODE_LENGTH);
             authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope);
             res.redirect(redirect_uri + `?code=${code}&state=${state}`);
         });
@@ -174,8 +187,8 @@ export class WebServer {
             assert(redirect_uri === redirectUri);
             const user = users.findById(userId);
             assert(user);
-            const accessToken = utils.getUid(256);
-            const refreshToken = utils.getUid(256);
+            const accessToken = utils.getUid(TOKEN_LENGTH);
+            const refreshToken = utils.getUid(TOKEN_LENGTH);
             accessTokens.save(accessToken, userId, client_id, scope);
             refreshTokens.save(refreshToken, userId, client_id, scope);
             res.type('json').send({
@@ -199,6 +212,11 @@ export class WebServer {
                 'profile': user.profile
             });
         });
+
+        // this.app.post("/update", isAuth, (req, res) => {
+        //     const { field, value } = req.body;
+        //     req.session.user!.profile[field] = value;
+        // });
     }
 
 

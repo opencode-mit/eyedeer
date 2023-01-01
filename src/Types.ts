@@ -1,2 +1,0 @@
-export type Client = { id: string, name: string, clientId: string, clientSecret: string, redirect_uri: string, image: string };
-export type User = { id: string, username: string, password: string, profile: {name?: string, email?: string}, apps: Map<string, Set<string>> };
