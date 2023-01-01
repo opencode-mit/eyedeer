@@ -15,7 +15,6 @@ import * as utils from '../util/Utils';
 import HttpStatus from 'http-status-codes';
 import asyncHandler from 'express-async-handler';
 import { Client, CODE_LENGTH, TOKEN_LENGTH, User } from '../Common';
-import { con } from '../db/Connect';
 import passport from 'passport';
 
 declare module 'express-session' {

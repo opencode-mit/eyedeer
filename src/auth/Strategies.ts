@@ -1,6 +1,5 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { con } from "../db/Connect";
 import * as users from '../db/Users';
 
 export default function Configure() {

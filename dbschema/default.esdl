@@ -22,7 +22,8 @@ module default {
         };
 
         required property hash -> str {
-            constraint len_value(60);
+            constraint min_len_value(60);
+            constraint max_len_value(60);
         };
 
         required property verified -> bool;
@@ -31,7 +32,7 @@ module default {
             on source delete delete target;
         };
 
-        multi link grants := User.<user[IS Grant];
+        multi link grants := User.<user[IS Approvals];
         multi link clients := User.<owner[IS Client];
 
         index on (.email);
@@ -40,7 +41,7 @@ module default {
     type Client {
         required link owner -> User {
             on target delete delete source;
-            constraint readonly;
+            readonly := true;
         };
 
         required property name -> str {
@@ -49,12 +50,14 @@ module default {
 
         required property client_id -> str {
             constraint exclusive;
-            constraint len_value(20);
-            constraint readonly;
+            constraint min_len_value(20);
+            constraint max_len_value(20);
+            readonly := true;
         };
 
         required property client_secret -> str {
-            constraint len_value(40);
+            constraint min_len_value(40);
+            constraint max_len_value(40);
         };
 
         required property redirect_uri -> str {
@@ -62,20 +65,20 @@ module default {
         }
 
         property image -> bytes;
-        multi link grants := Client.<client[IS Grant];
+        multi link grants := Client.<client[IS Approvals];
 
         index on (.client_id);
     }
 
-    type Grant {
+    type Approvals {
         required link user -> User {
             on target delete delete source;
-            constraint readonly;
+            readonly := true;
         };
 
         required link client -> Client{ 
             on target delete delete source;
-            constraint readonly;
+            readonly := true;
         };
         
         multi property scopes -> str;
