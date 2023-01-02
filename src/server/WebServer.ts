@@ -8,30 +8,35 @@ const expressMySQLStore = require('express-mysql-session')(session);
 import login from 'connect-ensure-login';
 import * as clients from '../db/Clients';
 import * as users from '../db/Users';
+import cors from 'cors';
 import * as accessTokens from '../db/AccessTokens';
 import * as refreshTokens from '../db/RefreshTokens';
 import * as authorizationCodes from '../db/AuthorizationCodes';
+import * as approvals from '../db/Approvals';
 import * as utils from '../util/Utils';
 import HttpStatus from 'http-status-codes';
 import asyncHandler from 'express-async-handler';
-import { Client, CODE_LENGTH, TOKEN_LENGTH, User } from '../Common';
+import { Client, CODE_LENGTH, REMEMBER_ME_OPTIONS, TOKEN_LENGTH, User } from '../Common';
 import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import Configure, { issueToken, consumeToken } from '../auth/Strategies';
 
 declare module 'express-session' {
     interface SessionData {
-        user: User;
+        returnTo: string;
     }
 }
-
 
 export class WebServer {
     private readonly app: Application;
     public server: http.Server | undefined;
 
     public constructor(private readonly port: number) {
+        Configure();
         this.app = express();
         this.app.set('view engine', 'ejs');
-        // this.app.use(cookieParser());
+        this.app.use(cors());
+        this.app.use(cookieParser());
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(errorHander());
@@ -47,12 +52,46 @@ export class WebServer {
             resave: false,
             saveUninitialized: true,
             store: sessionStore,
-            cookie: {
-                maxAge: 60 * 60 * 1000
-            }
+            cookie: {}
         }));
         this.app.use(passport.initialize());
         this.app.use(passport.session());
+
+        const rememberMe = async (req: any, res: any, next: NextFunction) => {
+            const token = req.cookies['remember_me'];
+            if (token === undefined) return next();
+            const user = await consumeToken(token);
+            if (user === undefined) {
+                res.clearCookie("remember_me");
+                return next();
+            }
+            const newToken = issueToken(user.id);
+            res.cookie("remember_me", newToken, REMEMBER_ME_OPTIONS);
+            req.logIn(user, function (err: any) {
+                next();
+            });
+        };
+
+        const checkForRememberMe = (req: any, res: any, next: NextFunction) => {
+            if (!req.body.remember_me) return next();
+            const user = req.user! as User;
+            const token = issueToken(user.id);
+            res.cookie("remember_me", token, REMEMBER_ME_OPTIONS);
+            next();
+        };
+
+        const redirect = (goingDirection: string) => {
+            return (req: any, res: any, next: NextFunction) => {
+                const direction = req.session.returnTo;
+                if (direction) {
+                    req.session.returnTo = undefined;
+                    return res.redirect(direction);
+                }
+                res.redirect(goingDirection);
+            };
+        };
+
+        this.app.use(rememberMe);
 
         this.app.use((req, res, next) => {
             console.log(req.url);
@@ -65,64 +104,26 @@ export class WebServer {
             res.send("<h1>OAuth 2.0 Server!</h1>");
         });
 
-        this.app.get("/login", (req, res) => {
+        this.app.get("/login", login.ensureLoggedOut({ redirectTo: '/dashboard' }), (req, res) => {
             res.render('login', { direction: `/login` });
         });
 
-        this.app.post("/login", (req, res, next) => {
-            const { username, password } = req.body;
-            const user = users.findByUsername(username);
-            if (!user || user.password !== password) return res.redirect("/login");
-            req.session.user = user;
-            res.redirect("/dashboard");
+        this.app.post("/login", passport.authenticate('local', { failureRedirect: '/login' }), checkForRememberMe, redirect("/dashboard"));
+
+        this.app.get("/signup", (req, res) => {
+            res.render('signup', { direction: `/signup` });
         });
 
-        const isAuth = (req: any, res: any, next: NextFunction) => {
-            if (req.session.user) return next();
-            res.redirect('/login')
-        }
+        this.app.post("/signup", passport.authenticate('local-signup', { failureRedirect: '/signup' }), checkForRememberMe, redirect("/dashboard"));
 
-        this.app.get("/dashboard", isAuth, (req, res) => {
-            const user = req.session.user;
-            assert(user);
-            console.log(user);
-            const approvedApps = [...users.findById(user.id)!.apps.keys()];
-            const approvedClients = approvedApps.map((clientId) => clients.findByClientId(clientId));
-            res.render('dashboard', { user: users.findById(user.id), clients: approvedClients });
-        });
-
-        this.app.get("/logto", (req, res) => {
-            const { redirect_uri, state, client_id, scope } = req.query;
-            assert(redirect_uri && state && client_id && scope);
-            res.render('login', { direction: `/logto?redirect_uri=${redirect_uri}&state=${state}&client_id=${client_id}&scope=${scope}` });
-        });
-
-        this.app.post("/logto", (req, res, next) => {
-            const { username, password } = req.body;
-            const user = users.findByUsername(username);
-            if (!user || user.password !== password) return res.redirect("/logto");
-            req.session.user = user;
-            next();
-        }, (req, res, next) => {
-            const { redirect_uri, state, client_id, scope } = req.query;
-            assert(redirect_uri && state && client_id && scope);
-            const client = clients.findByClientId(client_id as string);
-            assert(client);
-            assert(client.redirect_uri == redirect_uri);
-            const user = req.session.user as User;
-            if (users.checkScopes(user.id, client.clientId, new Set((scope as string).split(" ")))) {
-                const code = utils.getUid(CODE_LENGTH);
-                authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
-                return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
-            }
-            const transaction_id = utils.getUid(64);
-            transactions.set(transaction_id, { redirect_uri: redirect_uri as string, state: state as string, client, user, scope: scope as string });
-            const existingScopes = users.getCurrentApprovedScopes(user.id, client.clientId);
-            const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), existingScopes);
-            res.render('decide', { transactionId: transaction_id, approvedBefore: existingScopes.size > 0, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
+        this.app.get("/dashboard", login.ensureLoggedIn(), (req, res) => {
+            const user = req.user! as User;
+            const approvedApps = user.grants.map((grant) => grant.client);
+            res.render('dashboard', { user, clients: approvedApps });
         });
 
         this.app.get("/logout", (req, res, next) => {
+            res.clearCookie("remember_me");
             req.logout(function (err) {
                 if (err) { return next(err); }
                 res.redirect('/');
@@ -136,42 +137,35 @@ export class WebServer {
         const transactions = new Map<string, { redirect_uri: string, state: string, client: Client, user: User, scope: string }>();
 
         this.app.get("/dialog/authorize",
-            (req, res, next) => {
-                console.log(req.query);
+            login.ensureLoggedIn(),
+            async (req, res, next) => {
                 const { redirect_uri, state, client_id, scope } = req.query;
                 assert(redirect_uri && state && client_id && scope);
-                if (!req.session.user) {
-                    return res.redirect(`/logto?redirect_uri=${redirect_uri}&state=${state}&client_id=${client_id}&scope=${scope}`);
-                }
-                next();
-            },
-            (req, res, next) => {
-                const { redirect_uri, state, client_id, scope } = req.query;
-                assert(redirect_uri && state && client_id && scope);
-                const client = clients.findByClientId(client_id as string);
+                const client = await clients.findByClientId(client_id as string);
                 assert(client);
                 assert(client.redirect_uri == redirect_uri);
-                const user = req.session.user as User;
-                if (users.checkScopes(user.id, client.clientId, new Set((scope as string).split(" ")))) {
+                const user = req.user as User;
+                const scopes = new Set((scope as string).split(" "));
+                const existingScopes = new Set(await approvals.getScopes(user.email, client.client_id));
+                const newScopes = utils.inFirstNotInSecond(scopes, existingScopes);
+                if (newScopes.size === 0) {
                     const code = utils.getUid(CODE_LENGTH);
-                    authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope as string);
+                    authorizationCodes.save(code, client.client_id, redirect_uri, user.id, scope as string);
                     return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
                 }
                 const transaction_id = utils.getUid(64);
-                const existingScopes = users.getCurrentApprovedScopes(user.id, client.clientId);
-                const newScopes = utils.inFirstNotInSecond(new Set((scope as string).split(" ")), existingScopes);
                 res.render('decide', { transactionId: transaction_id, approvedBefore: existingScopes.size > 0, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
             }
         );
 
-        this.app.post("/dialog/authorize", (req, res) => {
+        this.app.post("/dialog/authorize", login.ensureLoggedIn(), (req, res) => {
             const { transaction_id } = req.body;
             const transaction = transactions.get(transaction_id);
             assert(transaction);
             const { redirect_uri, state, client, user, scope } = transaction;
-            users.addAppWithScopes(user.id, client.clientId, new Set(scope.split(" ")));
+            approvals.addApproval(user.email, client.client_id, scope.split(" "));
             const code = utils.getUid(CODE_LENGTH);
-            authorizationCodes.save(code, client.clientId, redirect_uri, user.id, scope);
+            authorizationCodes.save(code, client.client_id, redirect_uri, user.id, scope);
             res.redirect(redirect_uri + `?code=${code}&state=${state}`);
         });
 
@@ -199,22 +193,27 @@ export class WebServer {
             });
         });
 
-        this.app.get("/user", (req, res) => {
+        this.app.get("/user", async (req, res) => {
             const { token } = req.query;
             assert(token);
             const tokenData = accessTokens.find(token as string);
             assert(tokenData);
             const { userId, clientId } = tokenData;
-            const user = users.findById(userId);
+            const user = await users.findById(userId);
             assert(user);
             res.type('json').send({
-                'profile': user.profile
+                'id': user.id,
+                'verified': user.verified,
+                ...(user.emails) && { 'emails': user.emails },
+                ...(user.names) && { 'names': user.names },
+                ...(user.addresses) && { 'addresses': user.addresses },
             });
         });
 
-        // this.app.post("/update", isAuth, (req, res) => {
+        // this.app.post("/update", login.ensureLoggedIn(), (req, res) => {
         //     const { field, value } = req.body;
-        //     req.session.user!.profile[field] = value;
+            
+        //     re
         // });
     }
 

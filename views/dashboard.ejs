@@ -79,7 +79,7 @@ main {
         <div id="org-container">
             <% clients.forEach((approvedClient, i) => { %>
                 <% if (i < 4) { %> 
-                    <a href="/dashboard?client=<%= approvedClient.clientId %>"><img class="org-logo" alt="org logo" src="<%= approvedClient.image %>"></a>
+                    <a href="/dashboard?client=<%= approvedClient.client_id %>"><img class="org-logo" alt="org logo" src="<%= approvedClient.image %>"></a>
                 <% } else { %> 
                     <a class="see-more" href="/apps"><img class="more-logo" alt="see more apps" src="/images/more.svg"></a>
                 <% } %> 
@@ -89,13 +89,33 @@ main {
     <section class="app-section">
         <a class="section-link" href="/info"><h2>Info</h2></a>
         <div id="info-container">
-            <% Object.getOwnPropertyNames(user.profile).forEach((info) => { %>
+            <% user.names.forEach((info) => { %>
                 <div class="info">
                     <div class="info-name">
-                        <%=info%>
+                        Name
                     </div>
                     <div class="info-value">
-                        <%=user.profile[info]%>
+                        <%=info%>
+                    </div>
+                </div>
+            <% }); %> 
+            <% user.emails.forEach((info) => { %>
+                <div class="info">
+                    <div class="info-name">
+                        Email
+                    </div>
+                    <div class="info-value">
+                        <%=info%>
+                    </div>
+                </div>
+            <% }); %> 
+            <% user.addresses.forEach((info) => { %>
+                <div class="info">
+                    <div class="info-name">
+                        Address
+                    </div>
+                    <div class="info-value">
+                        <%=info%>
                     </div>
                 </div>
             <% }); %> 

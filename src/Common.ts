@@ -1,5 +1,22 @@
-export type Client = { id: string, name: string, clientId: string, clientSecret: string, redirect_uri: string, image: string };
-export type User = { id: string, username: string, password: string, profile: {name?: string, email?: string}, apps: Map<string, Set<string>> };
+export type Client = { id: string, name: string, client_id: string, client_secret: string, redirect_uri: string, image?: Uint8Array };
+export type User = {
+    id: string,
+    email: string,
+    hash: string,
+    verified: boolean,
+    emails: string[],
+    names: string[],
+    addresses: string[],
+    grants: {
+        client: {
+            name: string,
+            client_id: string,
+            redirect_uri: string,
+            image?: Uint8Array | null
+        },
+        scopes: string[]
+    }[]
+};
 
 export const TOKEN_LENGTH = 256;
 export const CODE_LENGTH = 16;
@@ -9,3 +26,5 @@ export const CLIENT_ID_LENGTH = 20;
 export const CLIENT_SECRET_LENGTH = 20;
 export const REDIRECT_URI_MAX = 60;
 export const HASHED_PASSWORD_MAX = 60;
+
+export const REMEMBER_ME_OPTIONS = { path: '/', httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 30 }; // 30 days

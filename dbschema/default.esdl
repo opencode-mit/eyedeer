@@ -1,19 +1,4 @@
 module default {
-    abstract type ProfileInfo {
-        required property info_name -> str;
-    }
-
-    type Name extending ProfileInfo {
-        required property name -> str;
-    }
-
-    type Email extending ProfileInfo {
-        required property email -> str;
-    }
-
-    type Address extending ProfileInfo {
-        required property address -> str;
-    }
 
     type User {
         required property email -> str {
@@ -28,17 +13,23 @@ module default {
 
         required property verified -> bool;
 
-        multi link profile -> ProfileInfo {
-            on source delete delete target;
+        multi property emails -> str {
+            constraint max_len_value(40);
         };
+        multi property names -> str {
+            constraint max_len_value(40);
+        };
+        multi property addresses -> str {
+            constraint max_len_value(150);
+        }
 
-        multi link grants := User.<user[IS Approvals];
-        multi link clients := User.<owner[IS Client];
+        multi link grants := User.<user[is Approvals];
+        multi link clients := User.<owner[is Application];
 
         index on (.email);
     }
 
-    type Client {
+    type Application {
         required link owner -> User {
             on target delete delete source;
             readonly := true;
@@ -65,7 +56,7 @@ module default {
         }
 
         property image -> bytes;
-        multi link grants := Client.<client[IS Approvals];
+        multi link grants := Application.<client[is Approvals];
 
         index on (.client_id);
     }
@@ -76,7 +67,7 @@ module default {
             readonly := true;
         };
 
-        required link client -> Client{ 
+        required link client -> Application{ 
             on target delete delete source;
             readonly := true;
         };
