@@ -1,0 +1,113 @@
+<%- include('header') %> 
+<%- include('topbar') %> 
+
+<style>
+body {
+    background-color: #eee;
+}
+
+main {
+    max-width: 80ch;
+    margin: 0 auto;
+    padding: 1em;
+}
+
+form {
+    text-align: center;
+}
+
+.action {
+    appearance: none;
+    border: none;
+    font-family: inherit;
+    font-size: 1em;
+    padding: 0.3em 0.5em;
+    cursor: pointer;
+}
+
+.action:active {
+    outline: none;
+}
+
+.action.primary {
+    background-color: #26a269;
+    color: white;
+    border: 1px solid #218c5a;
+    border-radius: 5px;
+}
+
+.action.primary:hover {
+    box-shadow: inset 0 0 0 2px hsl(152, 62%, 28%), 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: #218c5a;
+    border-color: #27a56a;
+}
+
+.action.primary:active {
+    box-shadow: inset 0 0 0 1px hsl(152, 62%, 24%), 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: #1d7c50;
+    border-color: #27a56a;
+}
+
+.action.destructive {
+    background-color: hsl(360, 62%, 39%);
+    color: white;
+    border: 1px solid hsl(360, 62%, 34%);
+    border-radius: 5px;
+}
+
+.action.destructive:hover {
+    box-shadow: inset 0 0 0 2px hsl(360, 62%, 28%), 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: hsl(360, 62%, 34%);
+    border-color: hsl(360, 62%, 40%);
+}
+
+.action.destructive:active {
+    box-shadow: inset 0 0 0 1px hsl(360, 62%, 24%), 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: hsl(360, 62%, 30%);
+    border-color: hsl(360, 62%, 40%);
+}
+
+.action.secondary {
+    background-color: white;
+    color: #303030;
+    border: 1px solid #bfbfbf;
+    border-radius: 5px;
+}
+
+.action.secondary:hover {
+    box-shadow: inset 0 0 0 2px #868686, 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: #f0f0f0;
+    border-color: #e3e3e3;
+}
+
+.action.secondary:active {
+    box-shadow: inset 0 0 0 1px #5e5e5e, 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: #dbdbdb;
+    border-color: #e3e3e3;
+}
+
+.action-form {
+    display: flex;
+    justify-content: end;
+    gap: 0.5em;
+}
+
+.action {
+    width: 100%;
+}
+
+.action-form>* {
+    flex: 1;
+}
+
+</style>
+
+<main>
+    <form action="/ask/verify" method="post">
+        <h2>Would you like to verify <%= user.email %>?</h2>
+        <div class="action-form">
+            <a href="/dashboard"><button class="secondary action" type="button">Cancel</button></a>
+            <input class="primary action" type="submit" value="Yes">
+        </div>
+    </form>
+</main>

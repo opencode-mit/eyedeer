@@ -15,6 +15,13 @@ export type User = {
             image?: Uint8Array | null
         },
         scopes: string[]
+    }[],
+    clients: {
+        name: string,
+        client_id: string,
+        client_secret: string,
+        redirect_uri: string,
+        image: Uint8Array | null
     }[]
 };
 
@@ -23,7 +30,7 @@ export const CODE_LENGTH = 16;
 export const CLIENT_NAME_MAX = 40;
 export const USERNAME_MAX = 40;
 export const CLIENT_ID_LENGTH = 20;
-export const CLIENT_SECRET_LENGTH = 20;
+export const CLIENT_SECRET_LENGTH = 40;
 export const REDIRECT_URI_MAX = 60;
 export const HASHED_PASSWORD_MAX = 60;
 

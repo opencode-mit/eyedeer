@@ -15,5 +15,41 @@
         a, a:visited {
             color: #36c;
         }
+        
+        main {
+            visibility:hidden;
+        }
+
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 6px solid transparent; /* Light grey */
+            border-top: 6px solid #3498db; /* Blue */
+            border-bottom: 6px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            animation: spin 2s linear infinite, appear 200ms 0.2s forwards;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes appear {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
     </style>
+    <script>
+        window.addEventListener('load', function () {
+            document.querySelector(".loader").style.visibility = "hidden";
+            document.querySelector("main").style.visibility = "visible";
+        });
+    </script>
 </head>
+<div class="loader"></div>

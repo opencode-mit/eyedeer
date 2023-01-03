@@ -1,0 +1,126 @@
+<%- include('header') %> 
+<%- include('topbar') %> 
+
+<style>
+body {
+    background-color: #eee;
+}
+
+main {
+    max-width: 80ch;
+    margin: 0 auto;
+    padding: 1em;
+}
+
+.info-container {
+    font-size: 1.3em;
+    display: flex;
+    flex-direction: column;
+}
+
+.info:first-child {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.info:last-child {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.info {
+    padding: 0.6em;
+    border: 1px solid lightgray;
+    background: white;
+}
+
+.info:not(:last-child) {
+    border-bottom: none;
+}
+
+.info-name {
+    text-transform: capitalize;
+    font-weight: 600;
+}
+
+a.info-link, a.info-link:visited {
+    color: black;
+}
+
+.info-display {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+}
+
+.info-image {
+    height: 2.2em;
+    border: 1px solid lightgray;
+    border-radius: 20%;
+}
+
+.action {
+    appearance: none;
+    border: none;
+    font-family: inherit;
+    font-size: 1em;
+    padding: 0.3em 0.5em;
+    cursor: pointer;
+}
+
+.action:active {
+    outline: none;
+}
+
+.action.secondary {
+    background-color: white;
+    color: #303030;
+    border: 1px solid #bfbfbf;
+    border-radius: 5px;
+}
+
+.action.secondary:hover {
+    box-shadow: inset 0 0 0 2px #868686, 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: #f0f0f0;
+    border-color: #e3e3e3;
+}
+
+.action.secondary:active {
+    box-shadow: inset 0 0 0 1px #5e5e5e, 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: #dbdbdb;
+    border-color: #e3e3e3;
+}
+
+.header-button {
+    font-size: smaller;
+}
+
+.section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+</style>
+
+<main>
+    <section class="app-section">
+        <h2 class="section-header">OAuth2 Apps (<%= user.clients.length %>) <a href="/developer/new"><button class="action secondary header-button">New Application</button></a></h2>
+        <div class="info-container">
+            <% for (const client of user.clients) { %>
+                <div class="info" v-scope="{image: [<%=client.image%>]}">
+                    <a class="info-link" href="/developer/app/<%=client.client_id%>">
+                        <div class="info-display">
+                            <% if (client.image) { %>
+                                <img class="info-image" alt="application logo" v-bind:src="URL.createObjectURL(new Blob([new Uint8Array(image)], { type: 'image/png' }))">
+                            <% } %> 
+                            <div>
+                                <div class="info-name"><%= client.name %></div>
+                                <div clahttps://fuiz.mit.eduss="info-value"><%= client.redirect_uri %></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>                    
+            <% } %> 
+        </div>
+    </section>
+</main>

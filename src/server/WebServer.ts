@@ -19,7 +19,7 @@ import asyncHandler from 'express-async-handler';
 import { Client, CODE_LENGTH, InfoType, REMEMBER_ME_OPTIONS, TOKEN_LENGTH, User } from '../Common';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import Configure, { issueToken, consumeToken } from '../auth/Strategies';
+import Configure, { issueToken, consumeToken } from '../config/Strategies';
 
 declare module 'express-session' {
     interface SessionData {
@@ -50,6 +50,12 @@ export class WebServer {
         this.app.use(passport.session());
 
         const ensureLoggedIn = login.ensureLoggedIn();
+
+        const ensureVerified = (req: any, res: any, next: NextFunction) => {
+            if (req.user.verified === true) return next();
+            req.session.returnTo = req.url;
+            res.redirect('/ask/verify');
+        }
 
         const rememberMe = async (req: any, res: any, next: NextFunction) => {
             const token = req.cookies['remember_me'];
@@ -204,7 +210,7 @@ export class WebServer {
             });
         });
 
-        this.app.post("/addinfo", ensureLoggedIn, async (req, res) => {
+        this.app.post("/info/add", ensureLoggedIn, async (req, res) => {
             const { field, value } = req.body;
             assert(field !== undefined && value !== undefined);
             const info = utils.enumFromValue(field, InfoType);
@@ -214,7 +220,7 @@ export class WebServer {
             res.redirect('/dashboard');
         });
 
-        this.app.post("/updateinfo", ensureLoggedIn, async (req, res) => {
+        this.app.post("/info/update", ensureLoggedIn, async (req, res) => {
             const { field, previous, value } = req.body;
             assert(field !== undefined && previous !== undefined && value !== undefined);
             const info = utils.enumFromValue(field, InfoType);
@@ -224,7 +230,7 @@ export class WebServer {
             res.redirect('/dashboard');
         });
 
-        this.app.post("/deleteinfo", ensureLoggedIn, async (req, res) => {
+        this.app.post("/info/delete", ensureLoggedIn, async (req, res) => {
             const { field, previous } = req.body;
             assert(field !== undefined && previous !== undefined);
             const info = utils.enumFromValue(field, InfoType);
@@ -232,6 +238,56 @@ export class WebServer {
             const user = req.user! as User;
             await users.deleteInfo(user.email, info, previous);
             res.redirect('/dashboard');
+        });
+
+        this.app.get("/developer", ensureLoggedIn, ensureVerified, (req, res) => {
+            res.render("developer", {user: req.user});
+        });
+
+        this.app.get("/developer/new", ensureLoggedIn, ensureVerified, (req, res) => {
+            res.render("newapp", {user: req.user});
+        });
+
+        this.app.get("/developer/app/:clientId", ensureLoggedIn, ensureVerified, (req, res) => {
+            const {clientId} = req.params;
+            assert(clientId !== undefined);
+            const user = req.user! as User;
+            const client = user.clients.filter(c => c.client_id === clientId)[0];
+            assert(client !== undefined);
+            res.render("appview", {user: req.user! as User, app: client});
+        });
+
+        this.app.post("/app/new", ensureLoggedIn, async (req, res) => {
+            const { name, redirect_uri } = req.body;
+            assert(name !== undefined && redirect_uri !== undefined);
+            await clients.addNewClient(req.user! as User, name, redirect_uri);
+            res.redirect("/developer");
+        });
+
+        this.app.post("/app/update", ensureLoggedIn, async (req, res) => {
+            const { client_id, name, redirect_uri } = req.body;
+            assert(client_id !== undefined && name !== undefined && redirect_uri !== undefined);
+            await clients.updateClient(client_id, req.user! as User, name, redirect_uri);
+            res.redirect("/developer/app/" + client_id);
+        });
+
+        this.app.post("/ask/verify", ensureLoggedIn, async (req, res) => {
+            const user = req.user! as User;
+            if (!user.verified) {
+                const success = await users.sendVerification(user.email);
+            }
+            res.redirect("/dashboard");
+        });
+        
+        this.app.get("/verify/:token", async (req, res) => {
+            const {token} = req.params;
+            assert(token !== undefined);
+            const success = await users.attemptVerify(token);
+            res.redirect("/dashboard");
+        });
+        
+        this.app.get("/ask/verify", ensureLoggedIn, (req, res) => {
+            res.render("verify", {user: req.user});
         });
     }
 

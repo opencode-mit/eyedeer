@@ -8,6 +8,8 @@ body {
 
 main {
     max-width: 80ch;
+    margin: 0 auto;
+    padding: 1em;
 }
 
 form {
@@ -22,13 +24,8 @@ form {
     border-radius: 20%;
     cursor: pointer;
 }
-
-main {
-    margin: 0 auto;
-    padding: 1em;
-}
     
-    #org-container {
+#org-container {
     display: flex;
     overflow-x: auto;
     gap: 0.5em
@@ -58,11 +55,13 @@ main {
 }
 
 .info:first-child {
-    border-radius: 5px 5px 0 0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 .info:last-child {
-    border-radius: 0 0 5px 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .info {
@@ -287,10 +286,10 @@ function updateDialog() {
     </section>
     <section class="app-section">
         <h2>Info (<%= user.emails.length+user.names.length+user.addresses.length %>)</h2>
-        <div id="info-container" v-scope="{ showForm: false, field: 'Email' }">
+        <div class="info-container" v-scope="{ showForm: false, field: 'Email' }">
             <% user.names.forEach((info) => { %>
                 <div class="info" v-scope="{ editing: false, dialog: false }">
-                    <form v-if="editing" action="/updateinfo" method="post">
+                    <form v-if="editing" action="/info/update" method="post">
                         <input type="hidden" id="field" name="field" value="Name">
                         <input type="hidden" id="previous" name="previous" value="<%=info%>">
                         <label class="input-label" for="value">Name</label>
@@ -323,7 +322,7 @@ function updateDialog() {
                             <form method="dialog">
                                 <button class="action secondary" @click="dialog=false">Take Me Back!</button>
                             </form>
-                            <form action="/deleteinfo" method="post">
+                            <form action="/info/delete" method="post">
                                 <input type="hidden" id="field" name="field" value="Name">
                                 <input type="hidden" id="previous" name="previous" value="<%=info%>">        
                                 <button class="action destructive">I'm sure</button>
@@ -334,7 +333,7 @@ function updateDialog() {
                 <% }); %> 
             <% user.emails.forEach((info) => { %>
                 <div class="info" v-scope="{ editing: false, dialog: false }">
-                    <form v-if="editing" action="/updateinfo" method="post">
+                    <form v-if="editing" action="/info/update" method="post">
                         <input type="hidden" id="field" name="field" value="Email">
                         <input type="hidden" id="previous" name="previous" value="<%=info%>">
                         <label class="input-label" for="value">Email</label>
@@ -367,7 +366,7 @@ function updateDialog() {
                             <form method="dialog">
                                 <button class="action secondary" @click="dialog=false">Take Me Back!</button>
                             </form>
-                            <form action="/deleteinfo" method="post">
+                            <form action="/info/delete" method="post">
                                 <input type="hidden" id="field" name="field" value="Email">
                                 <input type="hidden" id="previous" name="previous" value="<%=info%>">        
                                 <button class="action destructive">I'm sure</button>
@@ -378,7 +377,7 @@ function updateDialog() {
             <% }); %> 
             <% user.addresses.forEach((info) => { %>
                 <div class="info" v-scope="{ editing: false, dialog: false }">
-                    <form v-if="editing" action="/updateinfo" method="post">
+                    <form v-if="editing" action="/info/update" method="post">
                         <input type="hidden" id="field" name="field" value="Address">
                         <input type="hidden" id="previous" name="previous" value="<%=info%>">
                         <label class="input-label" for="value">Street Address</label>
@@ -411,7 +410,7 @@ function updateDialog() {
                             <form method="dialog">
                                 <button class="action secondary" @click="dialog=false">Take Me Back!</button>
                             </form>
-                            <form action="/deleteinfo" method="post">
+                            <form action="/info/delete" method="post">
                                 <input type="hidden" id="field" name="field" value="Address">
                                 <input type="hidden" id="previous" name="previous" value="<%=info%>">        
                                 <button class="action destructive">I'm sure</button>
@@ -421,7 +420,7 @@ function updateDialog() {
                 </div>
             <% }); %>
             <div class="info" v-if="showForm">
-                <form action="/addinfo" method="post">
+                <form action="/info/add" method="post">
                     <select name="field" id="field" v-model="field">
                         <option value="Email">Email</option>
                         <option value="Name">Name</option>

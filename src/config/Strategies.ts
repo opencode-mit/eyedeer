@@ -49,12 +49,13 @@ export default function Configure() {
         const existingUser = await users.findByEmail(email);
         if (existingUser !== undefined) return done(undefined, false);
         const hashedPassword = await bcrypt.hash(password, 10);
-        const id = await e.insert(e.User, {
+        const { id } = await e.insert(e.User, {
             email: email,
             hash: hashedPassword,
             verified: false
         }).run(DBClient);
-        const newUser = await users.findById(id.id);
+        const newUser = await users.findById(id);
+        users.sendVerification(email);
         done(undefined, newUser!);
     }));
 }

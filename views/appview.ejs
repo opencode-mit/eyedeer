@@ -1,0 +1,142 @@
+<%- include('header') %> 
+<%- include('topbar') %> 
+<style>
+body {
+    background-color: #eee;
+}
+
+main {
+    max-width: 80ch;
+    margin: 0 auto;
+    padding: 1em;
+}
+
+input[type=text], input[type=email] {
+  display: block;
+  width: 100%;
+  height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9em;
+  line-height: 1em;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-family: inherit;
+  margin: 0.4em 0 0.6em 0;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.8em;
+  font-weight: 600;
+  margin-bottom: 0.2em;
+}
+
+.form-group {
+  display: block;
+  padding: 0.6em 0;
+}
+
+.form-group.end {
+  display: flex;
+  justify-content: end;
+  gap: 0.3em;
+}
+
+.action {
+    appearance: none;
+    border: none;
+    font-family: inherit;
+    font-size: 1em;
+    padding: 0.3em 0.5em;
+    cursor: pointer;
+}
+
+.action:active {
+    outline: none;
+}
+
+.action.primary {
+    background-color: #26a269;
+    color: white;
+    border: 1px solid #218c5a;
+    border-radius: 5px;
+}
+
+.action.primary:hover {
+    box-shadow: inset 0 0 0 2px hsl(152, 62%, 28%), 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: #218c5a;
+    border-color: #27a56a;
+}
+
+.action.primary:active {
+    box-shadow: inset 0 0 0 1px hsl(152, 62%, 24%), 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: #1d7c50;
+    border-color: #27a56a;
+}
+
+.action.secondary {
+    background-color: white;
+    color: #303030;
+    border: 1px solid #bfbfbf;
+    border-radius: 5px;
+}
+
+.action.secondary:hover {
+    box-shadow: inset 0 0 0 2px #868686, 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: #f0f0f0;
+    border-color: #e3e3e3;
+}
+
+.action.secondary:active {
+    box-shadow: inset 0 0 0 1px #5e5e5e, 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: #dbdbdb;
+    border-color: #e3e3e3;
+}
+
+.section-header {
+  font-size: 0.8em;
+  font-weight: 600;
+  margin-bottom: 0.2em;
+}
+
+.info-image {
+    background: white;
+    border: 1px solid lightgray;
+    border-radius: 20%;
+    height: 5em;
+}
+
+</style>
+
+<main>
+    <section>
+        <h2 class="section-header">Client ID</h2>
+        <%= app.client_id %> 
+    </section>
+    <section>
+        <h2 class="section-header">Client Secret</h2>
+        <%= app.client_secret %> 
+    </section>
+    <section v-scope="{image: [<%= app.image %>]}">
+        <h2 class="section-header">Application Logo</h2>
+        <% if (app.image) { %>  
+            <img class="info-image" alt="application logo" v-bind:src="URL.createObjectURL(new Blob([new Uint8Array(image)], { type: 'image/png' }))">
+        <% } %> 
+    </section>
+    <form action="/app/update" method="post">
+        <input type="hidden" name="client_id" value="<%= app.client_id%>">
+        <div class="form-group">
+            <label for="name" class="input-label">Application Name</label>
+            <input type="text" name="name" id="name" placeholder="<%=app.name%>" value="<%=app.name%>">
+        </div>
+        <div class="form-group">
+            <label for="redirect_uri" class="input-label">Authorization callback URL</label>
+            <input type="text" name="redirect_uri" id="redirect_uri" placeholder="<%=app.redirect_uri%>" value="<%=app.redirect_uri%>">
+        </div>
+        <div class="form-group end">
+            <input class="action secondary" type="reset" value="Reset">
+            <input class="primary action" value="Update Application" type="submit">
+        </div>
+    </form>
+</main>

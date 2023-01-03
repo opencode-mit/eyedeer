@@ -4,8 +4,17 @@ body {
 }
 
 header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background: #241f31;
-    padding: 0.6em;
+    color: white;
+    font-weight: 600;
+    padding: 0.6em 1em;
+}
+
+a.header-nav {
+    color: white;
 }
 
 .header-link {
@@ -33,4 +42,5 @@ header {
         <img class="own-logo" alt="eyedeer logo" src="/images/eyedeer.svg">
         <label class="own-name"></label>
     </a>
+    <a class="header-nav" href="/developer">Developer Tools</a>
 </header>

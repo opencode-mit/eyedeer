@@ -1,5 +1,6 @@
 import crypto from 'crypto';
-
+import jdenticon from 'jdenticon';
+import { createCanvas } from 'canvas';
 export const getUid = (length: number): string => {
     return crypto.randomBytes(length / 2).toString('hex');
 };
@@ -35,3 +36,11 @@ export const enumFromValue = <T extends Record<string, string>>(val: string, _en
     if (!enumName) return undefined;
     return _enum[enumName]
 }
+
+export async function getProfilePicture(id: string) {
+    const image = jdenticon.toPng(id, 200);
+    const blob = new Blob([image], {type: 'image/png'});
+    const arrayBuffer = await blob.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+}
+  
