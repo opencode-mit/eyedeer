@@ -6,6 +6,14 @@ body {
     background-color: #eee;
 }
 
+main {
+    max-width: 80ch;
+}
+
+form {
+    display: inline;
+}
+
 .org-logo {
     width: 5em;
     height: 5em;
@@ -16,10 +24,11 @@ body {
 }
 
 main {
-    margin: 1em;
+    margin: 0 auto;
+    padding: 1em;
 }
-
-#org-container {
+    
+    #org-container {
     display: flex;
     overflow-x: auto;
     gap: 0.5em
@@ -71,15 +80,205 @@ main {
     font-weight: 600;
 }
 
+.info-display {
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-display:hover .edit-button {
+    display: inline-flex;
+}
+
+.add-info-image {
+    height: 2em;
+}
+
+.add-info-button {
+    display: flex;
+    justify-content: center;
+    appearance: none;
+    background: none;
+    border: none;
+    width: 100%;
+    padding: 0;
+    cursor: pointer;
+}
+
+.action-form {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5em;
+}
+
+.action-split {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5em;
+}
+
+.action {
+    appearance: none;
+    border: none;
+    font-family: inherit;
+    font-size: 1em;
+    padding: 0.3em 0.5em;
+    cursor: pointer;
+}
+
+.action:active {
+    outline: none;
+}
+
+.action.primary {
+    background-color: #26a269;
+    color: white;
+    border: 1px solid #218c5a;
+    border-radius: 5px;
+}
+
+.action.primary:hover {
+    box-shadow: inset 0 0 0 2px hsl(152, 62%, 28%), 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: #218c5a;
+    border-color: #27a56a;
+}
+
+.action.primary:active {
+    box-shadow: inset 0 0 0 1px hsl(152, 62%, 24%), 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: #1d7c50;
+    border-color: #27a56a;
+}
+
+.action.destructive {
+    background-color: hsl(360, 62%, 39%);
+    color: white;
+    border: 1px solid hsl(360, 62%, 34%);
+    border-radius: 5px;
+}
+
+.action.destructive:hover {
+    box-shadow: inset 0 0 0 2px hsl(360, 62%, 28%), 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: hsl(360, 62%, 34%);
+    border-color: hsl(360, 62%, 40%);
+}
+
+.action.destructive:active {
+    box-shadow: inset 0 0 0 1px hsl(360, 62%, 24%), 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: hsl(360, 62%, 30%);
+    border-color: hsl(360, 62%, 40%);
+}
+
+.action.secondary {
+    background-color: white;
+    color: #303030;
+    border: 1px solid #bfbfbf;
+    border-radius: 5px;
+}
+
+.action.secondary:hover {
+    box-shadow: inset 0 0 0 2px #868686, 0 2px 2px 0 rgb(0 0 0 / 8%);
+    background-color: #f0f0f0;
+    border-color: #e3e3e3;
+}
+
+.action.secondary:active {
+    box-shadow: inset 0 0 0 1px #5e5e5e, 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background-color: #dbdbdb;
+    border-color: #e3e3e3;
+}
+
+select {
+    display: block;
+    font-family: inherit;
+    border: 1px solid lightgray;
+    height: 2.5rem;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9em;
+    line-height: 1em;
+}
+
+input[type=text], input[type=email] {
+  display: block;
+  width: 100%;
+  height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9em;
+  line-height: 1em;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-family: inherit;
+  margin: 0.4em 0 0.6em 0;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.8em;
+  font-weight: 600;
+  margin-bottom: 0.2em;
+}
+
+.edit-button {
+    display: none;
+    height: min-content;
+    background: none;
+    appearance: none;
+    border: none;
+    border-radius: 100%;
+    padding: 0.3em;
+    cursor: pointer;
+}
+
+.edit-button:hover {
+    background: #eee;
+}
+
+.edit-button:active {
+    box-shadow: inset 0 0 0 1px #5e5e5e, 0 0 0 1px #fff, 0 0 0 3px #428fdc;
+    background: #eee;
+}
+
+dialog {
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(1px);
+}
+
+.edit-image {
+    height: 1.5em;
+    width: 1.5em;
+}
+
+.warning-header {
+    text-align: center;
+    margin-top: 0;
+}
+
 </style>
+
+<script>
+function updateDialog() {
+    const dialog = document.querySelector('dialog');
+    dialog.close();
+    dialog.showModal();
+}
+</script>
 
 <main>
     <section class="app-section">
-        <a class="section-link" href="/apps"><h2>Apps</h2></a>
+        <a class="section-link" href="/apps"><h2>Apps (<%= clients.length %>)</h2></a>
         <div id="org-container">
             <% clients.forEach((approvedClient, i) => { %>
                 <% if (i < 4) { %> 
-                    <a href="/dashboard?client=<%= approvedClient.client_id %>"><img class="org-logo" alt="org logo" src="<%= approvedClient.image %>"></a>
+                    <a href="/dashboard?client=<%= approvedClient.client_id %>">
+                        <img class="org-logo" alt="org logo" src="<%= approvedClient.image %>">
+                    </a>
                 <% } else { %> 
                     <a class="see-more" href="/apps"><img class="more-logo" alt="see more apps" src="/images/more.svg"></a>
                 <% } %> 
@@ -87,38 +286,161 @@ main {
         </div>
     </section>
     <section class="app-section">
-        <a class="section-link" href="/info"><h2>Info</h2></a>
-        <div id="info-container">
+        <h2>Info (<%= user.emails.length+user.names.length+user.addresses.length %>)</h2>
+        <div id="info-container" v-scope="{ showForm: false, field: 'Email' }">
             <% user.names.forEach((info) => { %>
-                <div class="info">
-                    <div class="info-name">
-                        Name
+                <div class="info" v-scope="{ editing: false, dialog: false }">
+                    <form v-if="editing" action="/updateinfo" method="post">
+                        <input type="hidden" id="field" name="field" value="Name">
+                        <input type="hidden" id="previous" name="previous" value="<%=info%>">
+                        <label class="input-label" for="value">Name</label>
+                        <input type="text" name="value" id="value" value="<%=info%>">
+                        <div class="action-form">
+                            <input type="reset" class="action secondary" @click="editing = false" value="Cancel">
+                            <button type="reset" class="action destructive" @click="editing = false; dialog = true; PetiteVue.nextTick(updateDialog);">Delete Info</button>
+                            <input type="submit" class="action primary" value="Update Info">
+                        </div>
+                    </form>
+                    <div class="info-display" v-else>
+                        <div>
+                            <div class="info-name">
+                                Name
+                            </div>
+                            <div class="info-value">
+                                <%=info%>
+                            </div>
+                        </div>
+                        <button class="edit-button" @click="editing = true">
+                            <img class="edit-image" src="images/edit.svg" alt="edit this info">
+                        </button>
                     </div>
-                    <div class="info-value">
-                        <%=info%>
-                    </div>
+                    <dialog v-if="dialog">
+                        <h1 class="warning-header">This action cannot be reversed</h1>
+                        <p class="warning-content">
+                            This info will be deleted forever: {Name: <%= info %>}
+                        </p>
+                        <div class="action-split">
+                            <form method="dialog">
+                                <button class="action secondary" @click="dialog=false">Take Me Back!</button>
+                            </form>
+                            <form action="/deleteinfo" method="post">
+                                <input type="hidden" id="field" name="field" value="Name">
+                                <input type="hidden" id="previous" name="previous" value="<%=info%>">        
+                                <button class="action destructive">I'm sure</button>
+                            </form>
+                        </div>
+                    </dialog>
                 </div>
-            <% }); %> 
+                <% }); %> 
             <% user.emails.forEach((info) => { %>
-                <div class="info">
-                    <div class="info-name">
-                        Email
+                <div class="info" v-scope="{ editing: false, dialog: false }">
+                    <form v-if="editing" action="/updateinfo" method="post">
+                        <input type="hidden" id="field" name="field" value="Email">
+                        <input type="hidden" id="previous" name="previous" value="<%=info%>">
+                        <label class="input-label" for="value">Email</label>
+                        <input type="email" name="value" id="value" value="<%=info%>">
+                        <div class="action-form">
+                            <input type="reset" class="action secondary" @click="editing = false" value="Cancel">
+                            <button type="reset" class="action destructive" @click="editing = false; dialog = true; PetiteVue.nextTick(updateDialog);">Delete Info</button>
+                            <input type="submit" class="action primary" value="Update Info">
+                        </div>
+                    </form>
+                    <div class="info-display" v-else>
+                        <div>
+                            <div class="info-name">
+                                Email
+                            </div>
+                            <div class="info-value">
+                                <%=info%>
+                            </div>
+                        </div>
+                        <button class="edit-button" @click="editing = true">
+                            <img class="edit-image" src="images/edit.svg" alt="edit this info">
+                        </button>
                     </div>
-                    <div class="info-value">
-                        <%=info%>
-                    </div>
+                    <dialog open v-if="dialog">
+                        <h1 class="warning-header">This action cannot be reversed</h1>
+                        <p class="warning-content">
+                            This info will be deleted forever: {Email: <%= info %>}
+                        </p>
+                        <div class="action-split">
+                            <form method="dialog">
+                                <button class="action secondary" @click="dialog=false">Take Me Back!</button>
+                            </form>
+                            <form action="/deleteinfo" method="post">
+                                <input type="hidden" id="field" name="field" value="Email">
+                                <input type="hidden" id="previous" name="previous" value="<%=info%>">        
+                                <button class="action destructive">I'm sure</button>
+                            </form>
+                        </div>
+                    </dialog>
                 </div>
             <% }); %> 
             <% user.addresses.forEach((info) => { %>
-                <div class="info">
-                    <div class="info-name">
-                        Address
+                <div class="info" v-scope="{ editing: false, dialog: false }">
+                    <form v-if="editing" action="/updateinfo" method="post">
+                        <input type="hidden" id="field" name="field" value="Address">
+                        <input type="hidden" id="previous" name="previous" value="<%=info%>">
+                        <label class="input-label" for="value">Street Address</label>
+                        <input type="text" name="value" id="value" value="<%=info%>">
+                        <div class="action-form">
+                            <input type="reset" class="action secondary" @click="editing = false" value="Cancel">
+                            <button type="reset" class="action destructive" @click="editing = false; dialog = true; PetiteVue.nextTick(updateDialog);">Delete Info</button>
+                            <input type="submit" class="action primary" value="Update Info">
+                        </div>
+                    </form>
+                    <div class="info-display" v-else>
+                        <div>
+                            <div class="info-name">
+                                Street Address
+                            </div>
+                            <div class="info-value">
+                                <%=info%>
+                            </div>
+                        </div>
+                        <button class="edit-button" @click="editing = true">
+                            <img class="edit-image" src="images/edit.svg" alt="edit this info">
+                        </button>
                     </div>
-                    <div class="info-value">
-                        <%=info%>
-                    </div>
+                    <dialog open v-if="dialog">
+                        <h1 class="warning-header">This action cannot be reversed</h1>
+                        <p class="warning-content">
+                            This info will be deleted forever: {Street Address: <%= info %>}
+                        </p>
+                        <div class="action-split">
+                            <form method="dialog">
+                                <button class="action secondary" @click="dialog=false">Take Me Back!</button>
+                            </form>
+                            <form action="/deleteinfo" method="post">
+                                <input type="hidden" id="field" name="field" value="Address">
+                                <input type="hidden" id="previous" name="previous" value="<%=info%>">        
+                                <button class="action destructive">I'm sure</button>
+                            </form>
+                        </div>
+                    </dialog>
                 </div>
-            <% }); %> 
+            <% }); %>
+            <div class="info" v-if="showForm">
+                <form action="/addinfo" method="post">
+                    <select name="field" id="field" v-model="field">
+                        <option value="Email">Email</option>
+                        <option value="Name">Name</option>
+                        <option value="Address">Street Address</option>
+                    </select>
+                    <input type="email" id="value" name="value" v-if="field == 'Email'" placeholder="johnsmith@gmail.com">
+                    <input type="text" id="value" name="value" v-if="field == 'Name'" placeholder="John Smith">
+                    <input type="text" id="value" name="value" v-if="field == 'Address'" placeholder="Mass Ave. 77">
+                    <div class="action-form">
+                        <input type="reset" class="action secondary" @click="showForm = false" value="Cancel">
+                        <input type="submit" class="action primary" value="Add To Profile">
+                    </div>
+                </form>
+            </div>
+            <div class="info add-info" v-else>
+                <button class="add-info-button" @click="showForm = true">
+                    <img class="add-info-image" alt="add new piece of information" src="images/add.svg">
+                </button>
+            </div>
         </div>
     </section>
 </main>

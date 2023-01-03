@@ -1,4 +1,4 @@
-import { User } from "../Common";
+import { InfoType, User } from "../Common";
 import e from "../../dbschema/edgeql-js";
 import { DBClient } from "./Connect";
 
@@ -51,3 +51,44 @@ export const findById = async (id: string): Promise<User | undefined> => {
     if (user) return user;
     return undefined;
 };
+
+export async function addInfo(email: string, info: InfoType, value: string): Promise<void> {
+    await e.update(e.User, user => ({
+        filter_single: {email: email},
+        set: {
+            ...(info === InfoType.Email) && {emails: {"+=": value}},
+            ...(info === InfoType.Name) && {names: {"+=": value}},
+            ...(info === InfoType.Address) && {addresses: {"+=": value}},
+        }
+    })).run(DBClient);
+}
+
+export async function updateInfo(email: string, info: InfoType, previous: string, value: string): Promise<void> {
+    await e.update(e.User, user => ({
+        filter_single: {email: email},
+        set: {
+            ...(info === InfoType.Email) && {emails: {"-=": previous}},
+            ...(info === InfoType.Name) && {names: {"-=": previous}},
+            ...(info === InfoType.Address) && {addresses: {"-=": previous}},
+        }
+    })).run(DBClient);
+    await e.update(e.User, user => ({
+        filter_single: {email: email},
+        set: {
+            ...(info === InfoType.Email) && {emails: {"+=": value}},
+            ...(info === InfoType.Name) && {names: {"+=": value}},
+            ...(info === InfoType.Address) && {addresses: {"+=": value}},
+        }
+    })).run(DBClient);
+}
+
+export async function deleteInfo(email: string, info: InfoType, previous: string): Promise<void> {
+    await e.update(e.User, user => ({
+        filter_single: {email: email},
+        set: {
+            ...(info === InfoType.Email) && {emails: {"-=": previous}},
+            ...(info === InfoType.Name) && {names: {"-=": previous}},
+            ...(info === InfoType.Address) && {addresses: {"-=": previous}},
+        }
+    })).run(DBClient);
+}

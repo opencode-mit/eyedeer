@@ -16,7 +16,7 @@ import * as approvals from '../db/Approvals';
 import * as utils from '../util/Utils';
 import HttpStatus from 'http-status-codes';
 import asyncHandler from 'express-async-handler';
-import { Client, CODE_LENGTH, REMEMBER_ME_OPTIONS, TOKEN_LENGTH, User } from '../Common';
+import { Client, CODE_LENGTH, InfoType, REMEMBER_ME_OPTIONS, TOKEN_LENGTH, User } from '../Common';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import Configure, { issueToken, consumeToken } from '../auth/Strategies';
@@ -56,6 +56,8 @@ export class WebServer {
         }));
         this.app.use(passport.initialize());
         this.app.use(passport.session());
+
+        const ensureLoggedIn = login.ensureLoggedIn();
 
         const rememberMe = async (req: any, res: any, next: NextFunction) => {
             const token = req.cookies['remember_me'];
@@ -116,7 +118,7 @@ export class WebServer {
 
         this.app.post("/signup", passport.authenticate('local-signup', { failureRedirect: '/signup' }), checkForRememberMe, redirect("/dashboard"));
 
-        this.app.get("/dashboard", login.ensureLoggedIn(), (req, res) => {
+        this.app.get("/dashboard", ensureLoggedIn, (req, res) => {
             const user = req.user! as User;
             const approvedApps = user.grants.map((grant) => grant.client);
             res.render('dashboard', { user, clients: approvedApps });
@@ -130,14 +132,14 @@ export class WebServer {
             });
         });
 
-        this.app.get("/account", login.ensureLoggedIn(), (req, res) => {
+        this.app.get("/account", ensureLoggedIn, (req, res) => {
             res.send(JSON.stringify(req.user));
         });
 
         const transactions = new Map<string, { redirect_uri: string, state: string, client: Client, user: User, scope: string }>();
 
         this.app.get("/dialog/authorize",
-            login.ensureLoggedIn(),
+            ensureLoggedIn,
             async (req, res, next) => {
                 const { redirect_uri, state, client_id, scope } = req.query;
                 assert(redirect_uri && state && client_id && scope);
@@ -158,7 +160,7 @@ export class WebServer {
             }
         );
 
-        this.app.post("/dialog/authorize", login.ensureLoggedIn(), (req, res) => {
+        this.app.post("/dialog/authorize", ensureLoggedIn, (req, res) => {
             const { transaction_id } = req.body;
             const transaction = transactions.get(transaction_id);
             assert(transaction);
@@ -210,11 +212,35 @@ export class WebServer {
             });
         });
 
-        // this.app.post("/update", login.ensureLoggedIn(), (req, res) => {
-        //     const { field, value } = req.body;
-            
-        //     re
-        // });
+        this.app.post("/addinfo", ensureLoggedIn, async (req, res) => {
+            const { field, value } = req.body;
+            assert(field !== undefined && value !== undefined);
+            const info = utils.enumFromValue(field, InfoType);
+            assert(info !== undefined);
+            const user = req.user! as User;
+            await users.addInfo(user.email, info, value);
+            res.redirect('/dashboard');
+        });
+
+        this.app.post("/updateinfo", ensureLoggedIn, async (req, res) => {
+            const { field, previous, value } = req.body;
+            assert(field !== undefined && previous !== undefined && value !== undefined);
+            const info = utils.enumFromValue(field, InfoType);
+            assert(info !== undefined);
+            const user = req.user! as User;
+            await users.updateInfo(user.email, info, previous, value);
+            res.redirect('/dashboard');
+        });
+
+        this.app.post("/deleteinfo", ensureLoggedIn, async (req, res) => {
+            const { field, previous } = req.body;
+            assert(field !== undefined && previous !== undefined);
+            const info = utils.enumFromValue(field, InfoType);
+            assert(info !== undefined);
+            const user = req.user! as User;
+            await users.deleteInfo(user.email, info, previous);
+            res.redirect('/dashboard');
+        });
     }
 
 

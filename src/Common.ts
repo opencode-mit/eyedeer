@@ -28,3 +28,7 @@ export const REDIRECT_URI_MAX = 60;
 export const HASHED_PASSWORD_MAX = 60;
 
 export const REMEMBER_ME_OPTIONS = { path: '/', httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 30 }; // 30 days
+
+export enum InfoType {
+    Email = "Email", Name = "Name", Address = "Address"
+}

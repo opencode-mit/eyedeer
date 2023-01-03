@@ -29,3 +29,9 @@ export const inFirstNotInSecond = (first: Set<any>, second: Set<any>): Set<any> 
     }
     return result;
 }
+
+export const enumFromValue = <T extends Record<string, string>>(val: string, _enum: T) => {
+    const enumName = (Object.keys(_enum) as Array<keyof T>).find(k => _enum[k] === val)
+    if (!enumName) return undefined;
+    return _enum[enumName]
+}
