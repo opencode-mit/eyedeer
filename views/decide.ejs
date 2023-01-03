@@ -143,7 +143,15 @@ input[type=submit].secondary {
           <label class="info-content"><%= scopes['personal'].join(", ") %></label>
         </div>
       </div>
-    <%}%>
+    <%} if (scopes['location']) { %>
+      <div class="info-section">
+        <img class="info-logo" alt="person" src="/images/location.svg">
+        <div class="info-text">
+          <label class="info-header">Location data</label>
+          <label class="info-content"><%= scopes['location'].join(", ") %></label>
+        </div>
+      </div>
+    <% } %> 
     <input name="transaction_id" type="hidden" value="<%= transactionId %>" />
     <div class="split">
       <input class="secondary" type="submit" value="Deny" name="cancel" id="deny" />

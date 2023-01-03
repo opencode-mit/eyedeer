@@ -198,15 +198,16 @@ export class WebServer {
             assert(token);
             const tokenData = accessTokens.find(token as string);
             assert(tokenData);
-            const { userId, clientId } = tokenData;
+            const { userId, clientId, scope } = tokenData;
+            const scopes = new Set(scope.split(" "));
             const user = await users.findById(userId);
             assert(user);
             res.type('json').send({
                 'id': user.id,
                 'verified': user.verified,
-                ...(user.emails) && { 'emails': user.emails },
-                ...(user.names) && { 'names': user.names },
-                ...(user.addresses) && { 'addresses': user.addresses },
+                ...(user.emails && scopes.has('email')) && { 'emails': user.emails },
+                ...(user.names && scopes.has('name')) && { 'names': user.names },
+                ...(user.addresses && scopes.has('address')) && { 'addresses': user.addresses },
             });
         });
 

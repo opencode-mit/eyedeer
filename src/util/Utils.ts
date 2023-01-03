@@ -7,7 +7,8 @@ export const getUid = (length: number): string => {
 
 const mapping = new Map<string, string>([
     ['email', 'personal'],
-    ['name', 'personal']
+    ['name', 'personal'],
+    ['address', 'location']
 ]);
 
 export const formatScopes = (scopes: Set<string>) => {
