@@ -40,18 +40,10 @@ export class WebServer {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(errorHander());
-        const sessionStore = new expressMySQLStore({
-            host: process.env['MYSQL_HOST'],
-            port: process.env['MYSQL_PORT'],
-            user: process.env['MYSQL_USER'],
-            password: process.env['MYSQL_PASSWORD'],
-            database: 'cookies'
-        });
         this.app.use(session({
             secret: 'barish',
             resave: false,
             saveUninitialized: true,
-            store: sessionStore,
             cookie: {}
         }));
         this.app.use(passport.initialize());
