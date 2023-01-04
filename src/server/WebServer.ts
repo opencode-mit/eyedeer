@@ -154,6 +154,7 @@ export class WebServer {
                     return res.redirect(redirect_uri + `?code=${code}&state=${state}`);
                 }
                 const transaction_id = utils.getUid(64);
+                transactions.set(transaction_id, {redirect_uri, state: state as string, client, user, scope: scope as string})
                 res.render('decide', { transactionId: transaction_id, approvedBefore: existingScopes.size > 0, user: user, redirect_uri, clientAuth: client, scopes: utils.formatScopes(newScopes) });
             }
         );
