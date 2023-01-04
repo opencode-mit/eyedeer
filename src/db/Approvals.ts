@@ -6,10 +6,10 @@ export async function getScopes(email: string, client_id: string): Promise<strin
     const approval = await e.select(e.Approvals, (approv) => ({
         scopes: true,
         user: user => ({
-            filter_single: e.op(user.email, '=', email)
+            filter: e.op(user.email, '=', email)
         }),
         client: client => ({
-            filter_single: e.op(client.client_id, '=', client_id)
+            filter: e.op(client.client_id, '=', client_id)
         })
     })).run(DBClient);
     if (approval.length == 0) return [];
