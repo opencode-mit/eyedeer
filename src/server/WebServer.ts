@@ -161,6 +161,7 @@ export class WebServer {
 
         this.app.post("/dialog/authorize", ensureLoggedIn, (req, res) => {
             const { transaction_id } = req.body;
+            assert(transaction_id);
             const transaction = transactions.get(transaction_id);
             assert(transaction);
             const { redirect_uri, state, client, user, scope } = transaction;
