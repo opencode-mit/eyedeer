@@ -13,7 +13,7 @@ export type User = {
             client_id: string,
             redirect_uri: string,
             image?: Uint8Array | null
-        },
+        } | null,
         scopes: string[]
     }[],
     clients: {

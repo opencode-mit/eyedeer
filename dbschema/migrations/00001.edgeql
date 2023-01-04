@@ -1,4 +1,4 @@
-CREATE MIGRATION m1mcy7go5mz7drqdnw5ivwuwdace7scsa5gfasl4sol6nqr5m65fmq
+CREATE MIGRATION m1bpsgc7ifm7kwacx2e3ernzlmm6rb6mbxhodno5udf7vno66utlpq
     ONTO initial
 {
   CREATE FUTURE nonrecursive_access_policies;
@@ -22,15 +22,15 @@ CREATE MIGRATION m1mcy7go5mz7drqdnw5ivwuwdace7scsa5gfasl4sol6nqr5m65fmq
           CREATE CONSTRAINT std::max_len_value(60);
       };
   };
-  CREATE TYPE default::Approvals {
-      CREATE REQUIRED LINK client -> default::Application {
+  CREATE TYPE default::Approval {
+      CREATE LINK client -> default::Application {
           ON TARGET DELETE DELETE SOURCE;
           SET readonly := true;
       };
       CREATE MULTI PROPERTY scopes -> std::str;
   };
   ALTER TYPE default::Application {
-      CREATE MULTI LINK grants := (default::Application.<client[IS default::Approvals]);
+      CREATE MULTI LINK grants := (default::Application.<client[IS default::Approval]);
   };
   CREATE TYPE default::User {
       CREATE REQUIRED PROPERTY email -> std::str {
@@ -62,13 +62,13 @@ CREATE MIGRATION m1mcy7go5mz7drqdnw5ivwuwdace7scsa5gfasl4sol6nqr5m65fmq
   ALTER TYPE default::User {
       CREATE MULTI LINK clients := (default::User.<owner[IS default::Application]);
   };
-  ALTER TYPE default::Approvals {
-      CREATE REQUIRED LINK user -> default::User {
+  ALTER TYPE default::Approval {
+      CREATE LINK user -> default::User {
           ON TARGET DELETE DELETE SOURCE;
           SET readonly := true;
       };
   };
   ALTER TYPE default::User {
-      CREATE MULTI LINK grants := (default::User.<user[IS default::Approvals]);
+      CREATE MULTI LINK grants := (default::User.<user[IS default::Approval]);
   };
 };

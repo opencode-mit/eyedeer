@@ -23,7 +23,7 @@ module default {
             constraint max_len_value(150);
         }
 
-        multi link grants := User.<user[is Approvals];
+        multi link grants := User.<user[is Approval];
         multi link clients := User.<owner[is Application];
 
         index on (.email);
@@ -56,18 +56,18 @@ module default {
         }
 
         property image -> bytes;
-        multi link grants := Application.<client[is Approvals];
+        multi link grants := Application.<client[is Approval];
 
         index on (.client_id);
     }
 
-    type Approvals {
-        required link user -> User {
+    type Approval {
+        link user -> User {
             on target delete delete source;
             readonly := true;
         };
 
-        required link client -> Application{ 
+        link client -> Application{ 
             on target delete delete source;
             readonly := true;
         };
