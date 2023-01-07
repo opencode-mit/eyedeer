@@ -5,12 +5,7 @@ import { DBClient } from "./Connect";
 export async function getScopes(email: string, client_id: string): Promise<string[]> {
     const approval = await e.select(e.Approval, (approv) => ({
         scopes: true,
-        user: user => ({
-            filter: e.op(user.email, '=', email)
-        }),
-        client: client => ({
-            filter: e.op(client.client_id, '=', client_id)
-        })
+        filter: e.op(e.op(approv.user.email, '=', email), 'and', e.op(approv.client.client_id, '=', client_id)),
     })).run(DBClient);
     if (approval.length == 0) return [];
     return approval[0]!.scopes;
@@ -19,12 +14,7 @@ export async function getScopes(email: string, client_id: string): Promise<strin
 export async function addApproval(email: string, client_id: string, scopes: string[]): Promise<boolean> {
     const existingApprovals = await e.select(e.Approval, (approv) => ({
         scopes: true,
-        user: user => ({
-            filter: e.op(user.email, '=', email)
-        }),
-        client: client => ({
-            filter: e.op(client.client_id, '=', client_id)
-        })
+        filter: e.op(e.op(approv.user.email, '=', email), 'and', e.op(approv.client.client_id, '=', client_id)),
     })).run(DBClient);
     if (existingApprovals.length === 0) {
         const approval = await e.insert(e.Approval, {

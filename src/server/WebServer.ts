@@ -147,8 +147,6 @@ export class WebServer {
                 const user = req.user as User;
                 const scopes = new Set((scope as string).split(" "));
                 const existingScopes = new Set(await approvals.getScopes(user.email, client.client_id));
-                console.log(scopes);
-                console.log(existingScopes);
                 const newScopes = utils.inFirstNotInSecond(scopes, existingScopes);
                 if (newScopes.size === 0) {
                     const code = utils.getUid(CODE_LENGTH);
