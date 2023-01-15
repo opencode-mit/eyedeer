@@ -94,30 +94,23 @@ input[type=submit] {
 </style>
 <body>
   <div id="login-container">
-    <form id="login-form" action="<%= direction %>" method="post">
+    <form id="login-form" action="/reset/<%=token%>" method="post">
       <div class="brand">
         <img class="logo" alt="eyedeer logo" src="/images/eyedeer.svg">
         <h1 class="website-name">EyeDeer</h1>
       </div>
-      <div class="form-group">
-        <label class="input-label">New Email</label>
-        <input class="form-text" type="email" name="email"/>
-      </div>
-      <div class="form-group">
-        <label class="input-label">New Password</label>
-        <input class="form-text" type="password" name="password" />
-      </div>
-      <div class="form-group split">
-        <div class="remember">
-          <input type="checkbox" id="remember" name="remember_me" value="1">
-          <label for="remember"> Remember me</label>
+      <% if(info[0]) {%>
+        <div class="message">
+          <img src="/images/info.svg" alt="info">
+          <%= info[0] %>
         </div>
+      <%}%>
+      <div class="form-group">
+        <label class="input-label">New password</label>
+        <input class="form-text" type="password" name="password"/>
       </div>
       <div class="form-group">
-        <input type="submit" value="Sign up" />
-      </div>
-      <div class="centered-message">
-        Already have login and password? <a href="/login">Sign in</a>
+        <input type="submit" value="Reset password" />
       </div>
     </form>
   </div>

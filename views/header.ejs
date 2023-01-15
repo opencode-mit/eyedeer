@@ -2,6 +2,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/petite-vue" defer init></script>
+    <title>EyeDeer</title>
     <link rel="icon" type="image/x-icon" href="/images/eyedeer.svg">
     <style>
         body {
@@ -43,6 +44,27 @@
         @keyframes appear {
             0% { opacity: 0; }
             100% { opacity: 1; }
+        }
+
+        .message {
+            background: #3584e4;
+            color: white;
+            text-align: center;
+            padding: 0.5em 0.6em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3em;
+        }
+
+        .message img {
+            filter: invert(1);
+            height: 1.2em;
+        }
+
+        .centered-message {
+            text-align: center;
+            margin: 0.3em 0 0 0;
         }
     </style>
     <script>
