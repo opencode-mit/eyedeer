@@ -113,16 +113,16 @@ export class WebServer {
         });
 
         this.app.get("/login", login.ensureLoggedOut({ redirectTo: '/dashboard' }), (req, res) => {
-            res.render('login', { info: req.flash('info') });
+            res.render('login', { info: req.flash('info'), error: req.flash('error') });
         });
 
-        this.app.post("/login", passport.authenticate('local', { failureRedirect: '/login' }), checkForRememberMe, redirect("/dashboard"));
+        this.app.post("/login", passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }), checkForRememberMe, redirect("/dashboard"));
 
         this.app.get("/signup", (req, res) => {
-            res.render('signup', { direction: `/signup`, info: req.flash('info') });
+            res.render('signup', { info: req.flash('info'), error: req.flash('error') });
         });
 
-        this.app.post("/signup", passport.authenticate('local-signup', { failureRedirect: '/signup' }), checkForRememberMe, redirect("/dashboard"));
+        this.app.post("/signup", passport.authenticate('local-signup', { failureRedirect: '/signup', failureFlash: true }), checkForRememberMe, redirect("/dashboard"));
 
         this.app.get("/forgot", (req, res) => {
             res.render("forgot", { info: req.flash("flash") });
@@ -396,7 +396,7 @@ export class WebServer {
                 res.status(HttpStatus.BAD_REQUEST).send("Missing clientId");
                 return;
             }
-            res.render("appview", { user: req.user! as User, app: client });
+            res.render("appview", { user: req.user! as User, app: client, info: req.flash("info") });
         });
 
         this.app.post("/app/new", ensureLoggedIn, async (req, res) => {
@@ -452,7 +452,7 @@ export class WebServer {
         });
 
         this.app.get("/ask/verify", ensureLoggedIn, (req, res) => {
-            res.render("verify", { user: req.user });
+            res.render("verify", { user: req.user, info: req.flash("info") });
         });
     }
 

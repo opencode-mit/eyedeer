@@ -270,6 +270,12 @@ function updateDialog() {
 </script>
 
 <main>
+    <% if(info[0]) {%>
+        <div class="message">
+            <img src="/images/info.svg" alt="info">
+            <%= info[0] %>
+        </div>
+    <%}%>
     <section class="app-section">
         <a class="section-link" href="/apps"><h2>Apps (<%= clients.length %>)</h2></a>
         <div id="org-container">

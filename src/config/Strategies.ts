@@ -37,17 +37,17 @@ export default function Configure() {
 
     passport.use(new LocalStrategy({ usernameField: "email", passReqToCallback: true }, async function(req, email, password, done) {
         const user = await users.findByEmail(email);
-        if (!user) return done(undefined, false);
+        if (!user) return done(undefined, false, { message: "User doesn't exist" });
         const isMatch = await bcrypt.compare(password, user.hash);
         if (!isMatch) {
-            return done(undefined, false);
+            return done(undefined, false, { message: "Password doesn't match" });
         }
         return done(undefined, user);
     }));
 
     passport.use('local-signup', new LocalStrategy({ usernameField: "email" }, async function(email, password, done) {
         const existingUser = await users.findByEmail(email);
-        if (existingUser !== undefined) return done(undefined, false);
+        if (existingUser !== undefined) return done(undefined, false, { message: "User already exists" });
         const hashedPassword = await bcrypt.hash(password, 10);
         const { id } = await e.insert(e.User, {
             email: email,

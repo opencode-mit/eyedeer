@@ -110,6 +110,12 @@ input[type=text], input[type=email] {
 </style>
 
 <main>
+    <% if(info[0]) {%>
+        <div class="message">
+            <img src="/images/info.svg" alt="info">
+            <%= info[0] %>
+        </div>
+    <%}%>
     <section>
         <h2 class="section-header">Client ID</h2>
         <%= app.client_id %> 

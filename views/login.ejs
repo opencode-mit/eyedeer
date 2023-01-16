@@ -105,6 +105,12 @@ input[type=submit] {
           <%= info[0] %>
         </div>
       <%}%>
+      <% if(error[0]) {%>
+        <div class="message">
+          <img src="/images/info.svg" alt="info">
+          <%= error[0] %>
+        </div>
+      <%}%>
       <div class="form-group">
         <label class="input-label">Email</label>
         <input class="form-text" type="email" name="email"/>

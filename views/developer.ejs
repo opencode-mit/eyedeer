@@ -103,6 +103,12 @@ a.info-link, a.info-link:visited {
 </style>
 
 <main>
+    <% if(info[0]) {%>
+        <div class="message">
+            <img src="/images/info.svg" alt="info">
+            <%= info[0] %>
+        </div>
+    <%}%>
     <section class="app-section">
         <h2 class="section-header">OAuth2 Apps (<%= user.clients.length %>) <a href="/developer/new"><button class="action secondary header-button">New Application</button></a></h2>
         <div class="info-container">

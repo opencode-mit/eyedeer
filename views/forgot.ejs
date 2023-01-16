@@ -93,6 +93,12 @@ input[type=submit] {
 
 </style>
 <body>
+  <% if(info[0]) {%>
+    <div class="message">
+      <img src="/images/info.svg" alt="info">
+      <%= info[0] %>
+    </div>
+  <%}%>
   <div id="login-container">
     <form id="login-form" action="/forgot" method="post">
       <div class="brand">
